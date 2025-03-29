@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>CEGE0043 Web&Mobile</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+
+
+    
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="css/style.css" rel="stylesheet">
+
+<style>
+    body {
+  overflow-y:hidden;
+  overflow-x:hidden;
+
+}
+
+</style>
+</head>
+
+<body> 
+    <div class="container-fluid position-relative bg-warning p-0">
+        <!-- Spinner Start -->
+        <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+        <!-- Spinner End -->
+
+
+        
+
+
+        <!-- Content Start -->
+           <div id = "wrapper" class="content d-flex flex-column" >
+        
+            <!-- Navbar Start -->
+            <nav class="navbar bg-light navbar-expand fixed-top py-0 px-4">
+                <a href="#" class="navbar-brand d-flex d-lg-none me-4">
+                    <h2 class="text-primary mb-0"><i class="fa fa-hashtag"></i></h2>
+                </a>
+                <a href="#" class="sidebar-toggler flex-shrink-0">
+                    <i class="fa fa-bars" ></i>
+                </a> 
+                <form class="d-none d-md-flex ms-4">
+                    <input class="form-control border-0" type="search" placeholder="Search" onclick="alert('Placeholder for search');">
+                </form>
+                <div class="navbar-nav align-items-right ms-auto">
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="fa fa-bell me-lg-2"></i>
+                            <span class="d-none d-lg-inline-flex">Help Menu</span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
+                            <a href="#" class="dropdown-item">
+                                <h6 class="fw-normal mb-0">Help 1</h6>
+                                <small>Answer Questions</small>
+                            </a>
+                            <hr class="dropdown-divider">
+                            <a href="#" class="dropdown-item">
+                                <h6 class="fw-normal mb-0">Help 2</h6>
+                                <small>Add Quiz Points</small>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </nav><!-- Navbar End -->
+
+<!-- Sidebar Start -->
+        <div class="sidebar pe-4 pb-3 bg-light">
+            <nav class="navbar bg-light navbar-light">
+                <a href="#" class="navbar-brand mx-4 mb-3">
+                    <h3 class="text-primary"><i class="fa fa-hashtag me-2"></i></h3>
+                </a>
+              <a href="#" class="sidebar-toggler flex-shrink-0 d-lg-none">
+                    <i class="fa fa-bars"></i>
+             </a>
+
+                
+    <!-- d-flex creates a flexbox container, which is the holder for other flexible items
+    align-items-center puts everything in this box i the middle
+    ms-4 gives a left margin of 4
+    mb-4 gives a bottom margin of 4
+
+    flex is used to align elements in a container even if we don't know the sizes of the elements
+-->
+ <div class="d-flex align-items-center ms-4 mb-4">
+
+                    <!-- any position informaiton you provide in this div will be relative to the outer div -i.e. the 0,0 is the topi left of this div -->
+                    <div class="position-relative">
+
+
+                        <!-- the orange circle image -->
+                        <img class="rounded-circle" src="img/icon.jpg" alt="" style="width: 50px; height: 40px;">
+
+
+                        <!--the samll green circle with a white border 
+                            bg is background
+                            bg-success refers to the green colour see here: https://getbootstrap.com/docs/5.0/utilities/background/-->
+                        <div class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1"></div>
+
+                    </div> <!-- the end of the position relative div -->
+
+                    <div class="ms-3"> <!-- set a left margin of 3 -->
+                        <h6 class="mb-0">ucfscde</h6> <!-- a standard html header h6 level with a bottom margin of 0  - bootstrap usually adds a margin so mb-0 removes this margin -->
+                        <!-- if your UCL username doesn't appear this is because the d-flex container has a mininimum width below which it disappears - this is responsive mode design
+                        you can type your UCL username in block capitals to solve this issue -->
+
+                        <span>Your GitHub Username</span>
+                    </div> <!-- closing the class ms-3 div-->
+                </div> <!-- closing the d-flex div -->
+            </nav>
+        <div class="navbar-nav">
+                <!-- Divider -->
+                <hr class="sidebar-divider">
+                <ul class="nav flex-column">
+
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Menu 1</a>            
+                    <div class="dropdown-menu">
+                      <a class="dropdown-item" onclick="menu2();;">Menu 2</a>
+                      <a class="dropdown-item" onclick="menu3();">Menu 3</a>
+                    </div>
+                  </li>
+
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Menu 4</a>            
+                    <div class="dropdown-menu">
+                      <a class="dropdown-item"  onclick="menu5();">Menu 5</a>
+                      <a class="dropdown-item"  onclick="menu6();">Menu 6</a>
+                    </div>
+                  </li>
+                <li class="nav-item dropdown">   
+                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Menu 7</a>            
+                    <div class="dropdown-menu">
+                      <a class="dropdown-item"   onclick="menu8();" >Menu 8</a>
+                      <a class="dropdown-item"   onclick="menu9();" >Menu 9</a>
+                    </div>
+                  </li>
+              </ul>
+
+  <div class="nav-item dropdown d-sm-down">   
+            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>Screen Size Check</a>            
+            <div class="dropdown-menu bg-transparent border-0">
+
+            <!-- only display when screen width is medium -->
+            <!-- default with block is that everything above is also visible so need to use lg-none to stop that -->
+            <a class="dropdown-item d-none d-md-block d-lg-none" href="#" onclick="alert('d-none d-md-block d-lg-none')">Only medium</a>
+
+            <!-- only display when screen width is medium or below --> 
+            <!-- when you use none, everything below is VISIBLE, everything above is not -->      
+            <a class="dropdown-item d-lg-none" href="#" onclick="alert('d-lg-none')">Medium or below</a>
+
+            <!-- only display when screen width is medium or above -->      
+            <!-- d-xs-none does not exist, use d-none --> 
+            <a class="dropdown-item d-sm-none d-none d-md-block" href="#" onclick="alert('d-sm-none d-none d-md-block')">Medium or above</a>
+
+            <!-- only display when screen width is NOT medium --> 
+            <!-- default when using none is that everything below is visible, everything above is not
+            so in this case you also need to say specifically that everything above is visible using d-lg-block -->      
+            <a class="dropdown-item d-md-none d-lg-block" href="#" onclick="alert('d-md-none d-lg-block')">Not medium</a>
+        </div>
+    </div> <!-- end of the screen size check menu option-->
+
+            
+        </div> <!--navbar-nav end -->
+    </div>
+        <!-- Sidebar End -->
+        
+<div class="container-fluid px-0">
+  <div class="row d-flex">
+    <div class="col d-flex">
+                <!-- mapwrapper start -->
+                <div id="mapWrapper" class="col vh-100 collapse show bg-warning" aria-expanded="true" role="region" style="margin-top:65px;z-index:0;">
+                        <div  id="mapid"  class=" bg-danger" style="height:calc(100% - 65px);">
+                        </div> <!-- map id -->
+                </div> <!-- mapwrapper end -->
+
+                <div id="cesiumWrapper" class="col vh-100 collapse hide" aria-expanded="true" role="region"  style="margin-top:65px;z-index:0;">
+                    <div  id="cesium"  class=" bg-danger" style="height:calc(100% - 65px);">
+                    </div> <!-- cesium id -->
+                </div> <!-- cesium wrapper -->
+
+
+
+                <!-- asset data wrapper wrapper wrapper -->
+                <div id="assetDataWrapperWrapper" class="col vh-100 collapse hide"  role="region" aria-expanded="true" style="background-color:lightgray; margin-top:65px;margin-bottom:100px;z-index:0;">
+                </div>
+                 <!-- asset data wrapper wrapper wrapper -->
+
+                 <!-- map ability wrapper wrapper -->
+                <div id="mapAbilityWrapper" role="region" class="col vh-100 collapse hide" aria-expanded="true" style="background-color:white; margin-top:65px;margin-bottom:100px;z-index:0;">
+                </div>
+                 <!-- map ability wrapper wrapper -->
+        </div> <!-- col d-flex -->
+    </div> <!-- row d-flex -->
+</div> <!-- container-fluid-->
+
+
+
+</div> <!-- end of the content wrapper -->
+</div> <!-- container fluid that wraps everything -->
+
+
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/chart/chart.min.js"></script>
+    <script src="lib/easing/easing.min.js"></script>
+    <script src="lib/waypoints/waypoints.min.js"></script>
+    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="lib/tempusdominus/js/moment.min.js"></script>
+    <script src="lib/tempusdominus/js/moment-timezone.min.js"></script>
+    <script src="lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="js/bootstrapTemplate.js"></script>
+    <script src="js/menu.js"></script>
+
+
+ 
+</body>
+</html>
