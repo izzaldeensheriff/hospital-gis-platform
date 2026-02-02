@@ -27,3 +27,12 @@ function showHardCodedData()
 	{}).addTo(mymap).bindPopup("this is a point<br>with two rows");
 
 
+//step two
+
+	function  showHardCodedGeoJSON() {
+
+alert(" showHardCodedGeoJSON");
+
+}
+
+
