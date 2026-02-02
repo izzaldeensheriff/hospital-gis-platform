@@ -36,5 +36,7 @@ function loadMap() {
 
     layerControl = L.control.layers(baseMaps,overlayMaps).addTo(mymap);
 
+    mymap.on('click', onMapClickDiv);
+
 
 } // end loadMap
