@@ -37,6 +37,7 @@ function loadMap() {
     layerControl = L.control.layers(baseMaps,overlayMaps).addTo(mymap);
 
     mymap.on('click', onMapClickDiv);
+    mymap.on('keydown', keyPressZoomToPoint);
 
 
 } // end loadMap
