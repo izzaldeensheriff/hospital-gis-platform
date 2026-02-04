@@ -34,7 +34,53 @@ let busStopsLayer;
  }
 
 
- function showBusStopsStyled() {alert(" showBusStopsStyled ")
+ function showBusStopsStyled() 
+
+ {
+      let testMarkerRed = L.AwesomeMarkers.icon({
+            icon: 'play',
+            markerColor: 'red'
+        });
+      let testMarkerGray = L.AwesomeMarkers.icon({
+            icon: 'play',
+            markerColor: 'gray'
+        });
+      
+        let testMarkerPink = L.AwesomeMarkers.icon({
+            icon: 'play',
+            markerColor: 'pink'
+        });
+
+        let testMarkerBlue = L.AwesomeMarkers.icon({
+            icon: 'play',
+            markerColor: 'blue'
+        });
+
+        let testMarkerPurple = L.AwesomeMarkers.icon({
+            icon: 'play',
+            markerColor: 'purple'
+        });
+        let testMarkerGreen = L.AwesomeMarkers.icon({
+            icon: 'play',
+            markerColor: 'green'
+        });
+
+        let testMarkerBlack = L.AwesomeMarkers.icon({
+            icon: 'play',
+            markerColor: 'black'
+        });
+
+        let testMarkerYellow = L.AwesomeMarkers.icon({
+            icon: 'play',
+            markerColor: 'yellow'
+        });
+
+        let testMarkerOrange = L.AwesomeMarkers.icon({
+            icon: 'play',
+            markerColor: 'orange'
+        });
+
+ 	alert(" showBusStopsStyled ")
  	// body...
  }
 
