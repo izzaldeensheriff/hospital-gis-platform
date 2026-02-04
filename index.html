@@ -51,6 +51,12 @@
 }
 
 </style>
+
+<!-- the following links incorporate the CSS required for custom icon creation -->
+<link rel="stylesheet" href="css/ionicons.min.css">
+<link rel="stylesheet" href="css/leaflet.awesome-markers.css">
+<script src="js/leaflet.awesome-markers.js"></script>
+
 </head>
 
 <body> 
@@ -105,20 +111,22 @@
             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>Show Data</a>            
             <div class="dropdown-menu bg-transparent border-0">
               <a class="dropdown-item" href="#" onclick="showHardCodedData();">Show Hardcoded Data</a>
-          
- 
-
             </div>
+
+
+        <!-- a new menu item under the Show Data menu in the index.html file. Call the new menu item Show Earthquakes-->
+        <div class="dropdown-menu bg-transparent border-0">
+              <a class="dropdown-item" href="#" onclick="showEarthquakes();">Show Earthquakes</a>
         </div>
+
+        </div>
+
 
 <!-- Bootstrap MENU2 -->
         <div class="nav-item dropdown">
             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>Show Hardcoded GeoJSON</a>            
             <div class="dropdown-menu bg-transparent border-0">
               <a class="dropdown-item" href="#" onclick="showHardCodedGeoJSON();">Show Hardcoded Data</a>
-          
- 
-
             </div>
         </div>
 
@@ -283,6 +291,7 @@
     <script src="js/utilities.js"></script>
     <script src="js/geoJSONShapes.js"></script>
     <script src="js/mapUtilities.js"></script>
+    <script src="js/earthquakes.js"></script>
 
 
  
