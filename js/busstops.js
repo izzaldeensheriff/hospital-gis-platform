@@ -39,6 +39,15 @@ let busStopsLayer;
  }
 
 
- function removeBusStops() {alert(" removeBusStops ")
+ function removeBusStops() 
+
+ {// we use a try / catch statement here - this means that if the layer has not yet been added we won't get an error message
+	try {
+			mymap.removeLayer( busStopsLayer);
+		} catch (err) {
+
+	}
+
+ 	alert(" removeBusStops ")
  	// body...
  }
