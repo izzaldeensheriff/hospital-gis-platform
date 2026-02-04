@@ -1,5 +1,5 @@
 "use strict"
-function showHardCodedData() 
+function showHardCodedData() {
 // add a circle
 	let myCircle=L.circle([51.508, -0.11], 250, {
 		color: 'green',
@@ -32,6 +32,8 @@ function showHardCodedData()
 	function  showHardCodedGeoJSON() {
 
 alert(" showHardCodedGeoJSON");
+
+}
 
 }
 
