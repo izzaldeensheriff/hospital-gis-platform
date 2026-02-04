@@ -2,7 +2,9 @@
 
 // a fucnction to show the earthqukae data pulled form the API
 
-function showEarthquakes()  {  let layerURL = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson";
+function showEarthquakes()  {  
+
+	let layerURL = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson";
 	 $.ajax({url: layerURL, crossDomain: true,success: function(result){
 
     		// add the JSON layer onto the map - it will appear using the default icons
@@ -20,3 +22,7 @@ function showEarthquakes()  {  let layerURL = "https://earthquake.usgs.gov/earth
 	 alert(" showEarthquakes");
 }
 
+function showStyledEarthquakes() { alert(" showStyledEarthquakes ")
+
+
+}
