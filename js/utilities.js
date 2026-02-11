@@ -1,4 +1,3 @@
-"use strict"
 /**
 * function to load Cesium and Leaflet maps when the page load has completed
 * 
