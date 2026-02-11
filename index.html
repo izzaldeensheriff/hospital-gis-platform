@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>CEGE0043 Web&Mobile</title>
+    <title>Izzaldeen Sheriff Practice Website</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="" name="keywords">
     <meta content="" name="description">
@@ -30,6 +30,19 @@
     <!-- Template Stylesheet -->
     <link href="css/style.css" rel="stylesheet">
 
+    <!-- CSS required to style the leaflet map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+     integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
+     crossorigin=""/>
+
+
+
+    <!-- JavaScript code that creates the map -->
+     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+     integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
+     crossorigin=""></script>
+
+
 <style>
     body {
   overflow-y:hidden;
@@ -38,6 +51,12 @@
 }
 
 </style>
+
+<!-- the following links incorporate the CSS required for custom icon creation -->
+<link rel="stylesheet" href="css/ionicons.min.css">
+<link rel="stylesheet" href="css/leaflet.awesome-markers.css">
+<script src="js/leaflet.awesome-markers.js"></script>
+
 </head>
 
 <body> 
@@ -86,6 +105,54 @@
                             </a>
                         </div>
                     </div>
+
+         <!-- Bootstrap MENU -->           
+        <div class="nav-item dropdown">
+            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>Show Data</a>            
+            <div class="dropdown-menu bg-transparent border-0">
+              <a class="dropdown-item" href="#" onclick="showHardCodedData();">Show Hardcoded Data</a>
+
+              <!-- a new menu item under the Show Data menu in the index.html file. Call the new menu item Show Earthquakes-->
+              <a class="dropdown-item" href="#" onclick="showEarthquakes();">Show Earthquakes</a>
+
+              <!-- Add another custom menu item under the Show Data menu, called Show Styled Earthquakes-->
+              <a class="dropdown-item" href="#" onclick="showStyledEarthquakes();">Show Styled Earthquakes</a>
+
+              <!--  Add a new menu item under the Show Data menu in the index.html file. Call the new menu item Show BusStops - the new menu item should call the showBusStops function -->
+              <a class="dropdown-item" href="#" onclick="showBusStops();">Show BusStops</a>
+
+
+              <!-- Add a new menu item under the Show Data menu in the index.html file. Call the new menu item Show BusStops Styled - the new menu item should call the showBusStopsStyled function -->
+              <a class="dropdown-item" href="#" onclick="showBusStopsStyled();">Show BusStops Styled</a>
+
+
+              <!-- Add a new menu item under the Show Data menu in the index.html file. Call the new menu item Remove BusStops - the new menu item should call the removeBusStops function-->
+              <a class="dropdown-item" href="#" onclick="removeBusStops();">removeBusStops</a>
+
+
+
+              <!-- Add a new menu item under the Show Data menu in the index.html file. Call the new menu item Show Ethernet Styled -->
+              <a class="dropdown-item" href="#" onclick="showEthernetStyled();">Show Ethernet Styled</a>
+
+
+              <!-- Add a new menu item under the Show Data menu in the index.html file. Call the new menu item Remove Ethernet-->
+              <a class="dropdown-item" href="#" onclick=" removeEthernet();">Remove Ethernet</a>
+
+
+            </div>
+
+        </div>
+
+
+<!-- Bootstrap MENU2 -->
+        <div class="nav-item dropdown">
+            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>Show Hardcoded GeoJSON</a>            
+            <div class="dropdown-menu bg-transparent border-0">
+              <a class="dropdown-item" href="#" onclick="showHardCodedGeoJSON();">Show Hardcoded Data</a>
+            </div>
+        </div>
+
+
                 </div>
 
             </nav><!-- Navbar End -->
@@ -241,6 +308,15 @@
     <!-- Template Javascript -->
     <script src="js/bootstrapTemplate.js"></script>
     <script src="js/menu.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/includeDialogs.js"></script>
+    <script src="js/utilities.js"></script>
+    <script src="js/geoJSONShapes.js"></script>
+    <script src="js/mapUtilities.js"></script>
+    <script src="js/busstops.js"></script>
+    <script src="js/ethernet.js"></script>
+
+    
 
 
  
