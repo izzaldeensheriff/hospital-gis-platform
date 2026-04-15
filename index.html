@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Izzaldeen Sheriff Practice Website</title>
+    <title>index</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="" name="keywords">
     <meta content="" name="description">
@@ -181,7 +181,7 @@
 
 
                         <!-- the orange circle image -->
-                        <img class="rounded-circle" src="img/icon.jpg" alt="" style="width: 50px; height: 40px;">
+                        <img class="rounded-circle" src="img/UCL_Logo.jpg" alt="" style="width: 50px; height: 40px;">
 
 
                         <!--the samll green circle with a white border 
@@ -192,11 +192,11 @@
                     </div> <!-- the end of the position relative div -->
 
                     <div class="ms-3"> <!-- set a left margin of 3 -->
-                        <h6 class="mb-0">ucfscde</h6> <!-- a standard html header h6 level with a bottom margin of 0  - bootstrap usually adds a margin so mb-0 removes this margin -->
+                        <h6 class="mb-0"><b>ucesia3@ucl.ac.uk</b><br> <!-- a standard html header h6 level with a bottom margin of 0  - bootstrap usually adds a margin so mb-0 removes this margin -->
                         <!-- if your UCL username doesn't appear this is because the d-flex container has a mininimum width below which it disappears - this is responsive mode design
                         you can type your UCL username in block capitals to solve this issue -->
 
-                        <span>Your GitHub Username</span>
+                        <span><b>Izzaldeensheriff</b></span></h6>
                     </div> <!-- closing the class ms-3 div-->
                 </div> <!-- closing the d-flex div -->
             </nav>
@@ -208,7 +208,7 @@
                 <li class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Menu 1</a>            
                     <div class="dropdown-menu">
-                      <a class="dropdown-item" onclick="menu2();;">Menu 2</a>
+                      <a class="dropdown-item" href="#" onclick="showDialog('layerToLoad');">Menu 2</a>
                       <a class="dropdown-item" onclick="menu3();">Menu 3</a>
                     </div>
                   </li>
@@ -216,8 +216,8 @@
                 <li class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Menu 4</a>            
                     <div class="dropdown-menu">
-                      <a class="dropdown-item"  onclick="menu5();">Menu 5</a>
-                      <a class="dropdown-item"  onclick="menu6();">Menu 6</a>
+                      <a class="dropdown-item"  onclick="showDialog('thumbnail');">Menu 5</a>
+                      <a class="dropdown-item"  onclick="showDialog('allLayers');">Menu 6</a>
                     </div>
                   </li>
                 <li class="nav-item dropdown">   
@@ -225,6 +225,13 @@
                     <div class="dropdown-menu">
                       <a class="dropdown-item"   onclick="menu8();" >Menu 8</a>
                       <a class="dropdown-item"   onclick="menu9();" >Menu 9</a>
+                    </div>
+                  </li>
+				  <li class="nav-item dropdown">   
+                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Menu 10</a>            
+                    <div class="dropdown-menu">
+                      <a class="dropdown-item"   onclick="menu5();" >Menu 11</a>
+                      <a class="dropdown-item"   onclick="menu6();" >Menu 12</a>
                     </div>
                   </li>
               </ul>
@@ -318,6 +325,8 @@
     
 
 
- 
+ <script src="js/includeDialogs.js"></script>
+ <div data-w3-include-html="./dialogs/dialogs.txt"></div>
+ <script>includeHTML();</script>
 </body>
 </html>
