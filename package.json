@@ -1,6 +1,7 @@
 {
   "name": "box-selection",
   "dependencies": {
+    "express": "^5.2.1",
     "ol": "10.7.0"
   },
   "devDependencies": {
