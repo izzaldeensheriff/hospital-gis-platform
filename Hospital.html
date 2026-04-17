@@ -187,10 +187,14 @@
                     </div>
                 </div>
             </div>
-			<div class="container-fluid pt-3 px-3">
+			
+			
+			<div class="container-fluid pt-3 px-3" id="hospitalQueueChartContainer" style="display:none;">
     <div class="bg-light rounded p-4">
         <h6 class="mb-4">Hospital Queue Length Bar Chart</h6>
-        <canvas id="hospitalQueueChart" height="100"></canvas>
+        <div style="position: relative; height: 400px;">
+            <canvas id="hospitalQueueChart"></canvas>
+        </div>
     </div>
 </div>
 
