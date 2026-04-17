@@ -253,6 +253,23 @@ function saveNewHospital(formValues) {
         });
 }
 
+
+function closeHospitalChart() {
+    const chartContainer = document.getElementById("hospitalQueueChartContainer");
+
+    if (chartContainer) {
+        chartContainer.style.display = "none";
+    }
+
+    if (hospitalQueueChart) {
+        hospitalQueueChart.destroy();
+        hospitalQueueChart = null;
+    }
+
+    console.log("Bar chart closed");
+}
+
+
 function saveQueueCleanlinessReport(formValues) {
     const hospitalName = formValues.report_hospital_name ? formValues.report_hospital_name.trim() : "";
     const cleanliness = formValues.cleanliness ? formValues.cleanliness.trim() : "";
