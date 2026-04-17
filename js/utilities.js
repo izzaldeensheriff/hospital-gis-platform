@@ -16,6 +16,9 @@ let queueLengthOptions = [];
  */
 let popupHospitalLookup = {};
 
+/**
+ * Bar chart instance
+ */
 let hospitalQueueChart = null;
 
 /**
@@ -79,6 +82,9 @@ function getUserIdFromAPI() {
         });
 }
 
+/**
+ * Get queue length options from API
+ */
 function getQueueLengths() {
     fetch(apiBase + '/api/geojsonAPI/getQueueLengths')
         .then(function (response) {
@@ -96,6 +102,9 @@ function getQueueLengths() {
         });
 }
 
+/**
+ * Build radio button options for queue lengths
+ */
 function buildQueueLengthOptions() {
     const container = document.getElementById("queueLengthOptions");
 
@@ -128,6 +137,32 @@ function buildQueueLengthOptions() {
     });
 }
 
+/**
+ * Restore only the default user hospital layer
+ */
+function showOnlyDefaultLayer() {
+    reportingLayer.clearLayers();
+
+    if (typeof getUserHospitals === "function") {
+        getUserHospitals();
+    }
+
+    console.log("Default hospital layer restored");
+}
+
+/**
+ * Switch to reporting layer mode only
+ */
+function showOnlyReportingLayer() {
+    defaultHospitalLayer.clearLayers();
+    reportingLayer.clearLayers();
+
+    console.log("Reporting layer mode activated");
+}
+
+/**
+ * Open queue and cleanliness report form
+ */
 function openQueueCleanlinessForm(properties) {
     const hospitalIdInput = document.getElementById("report_hospital_id");
     const hospitalNameInput = document.getElementById("report_hospital_name");
@@ -150,6 +185,11 @@ function openQueueCleanlinessForm(properties) {
         hospitalNameDisplay.innerText = properties.hospital_name || "";
     }
 
+    const previousQueueInput = document.getElementById("previous_queue_length_id");
+    if (previousQueueInput) {
+        previousQueueInput.value = properties.queue_length_id || "";
+    }
+
     const textarea = document.getElementById("cleanliness");
     if (textarea) {
         textarea.value = "";
@@ -163,24 +203,9 @@ function openQueueCleanlinessForm(properties) {
     showDialog("queueCleanlinessFormDialog");
 }
 
-function showOnlyDefaultLayer() {
-    reportingLayer.clearLayers();
-
-    if (typeof getUserHospitals === "function") {
-        getUserHospitals();
-    }
-
-    console.log("Default hospital layer restored");
-}
-
-function showOnlyReportingLayer() {
-    defaultHospitalLayer.clearLayers();
-    reportingLayer.clearLayers();
-
-    console.log("Reporting layer mode activated");
-}
-
-
+/**
+ * Open queue and cleanliness form by hospital ID
+ */
 function openQueueCleanlinessFormById(hospitalId) {
     const props = popupHospitalLookup[hospitalId];
     if (props) {
@@ -190,6 +215,9 @@ function openQueueCleanlinessFormById(hospitalId) {
     }
 }
 
+/**
+ * Save new hospital
+ */
 function saveNewHospital(formValues) {
     const hospitalName = formValues.hospital_name ? formValues.hospital_name.trim() : "";
     const inspectionDate = formValues.hospital_inspection_date ? formValues.hospital_inspection_date.trim() : "";
@@ -271,36 +299,25 @@ function saveNewHospital(formValues) {
         });
 }
 
-
-function closeHospitalChart() {
-    const chartContainer = document.getElementById("hospitalQueueChartContainer");
-
-    if (chartContainer) {
-        chartContainer.style.display = "none";
-    }
-
-    if (hospitalQueueChart) {
-        hospitalQueueChart.destroy();
-        hospitalQueueChart = null;
-    }
-
-    console.log("Bar chart closed");
-}
-
-
+/**
+ * Save cleanliness and queue report
+ */
 function saveQueueCleanlinessReport(formValues) {
     const hospitalName = formValues.report_hospital_name ? formValues.report_hospital_name.trim() : "";
     const cleanliness = formValues.cleanliness ? formValues.cleanliness.trim() : "";
     const queueLengthDescription = formValues.queue_length_description;
     const reportUserId = formValues.report_user_id ? formValues.report_user_id : userId;
+    const previousQueueLengthId = formValues.previous_queue_length_id ? Number(formValues.previous_queue_length_id) : null;
 
     if (!hospitalName || !queueLengthDescription) {
         alert("Please select a queue length and make sure the hospital is valid.");
         return;
     }
-if (!confirm("Are you sure you want to submit this report?")) {
-    return;
-}
+
+    if (!confirm("Are you sure you want to submit this report?")) {
+        return;
+    }
+
     const payload = {
         hospital_name: hospitalName,
         cleanliness: cleanliness,
@@ -332,7 +349,29 @@ if (!confirm("Are you sure you want to submit this report?")) {
                 form.reset();
             }
 
-            alert("Cleanliness/queue report saved successfully.");
+            let currentQueueLengthId = null;
+
+            const matchedQueue = queueLengthOptions.find(function (feature) {
+                return feature.properties &&
+                    feature.properties.queue_length_description === queueLengthDescription;
+            });
+
+            if (matchedQueue && matchedQueue.properties) {
+                currentQueueLengthId = Number(matchedQueue.properties.queue_length_id);
+            }
+
+            if (previousQueueLengthId !== null && currentQueueLengthId !== null) {
+                if (currentQueueLengthId > previousQueueLengthId) {
+                    alert("Queue is higher than the previous report.");
+                } else if (currentQueueLengthId < previousQueueLengthId) {
+                    alert("Queue is lower than the previous report.");
+                } else {
+                    alert("Queue is the same as the previous report.");
+                }
+            } else {
+                alert("Cleanliness/queue report saved successfully.");
+            }
+
             console.log(data);
 
             getUserHospitals();
@@ -344,19 +383,9 @@ if (!confirm("Are you sure you want to submit this report?")) {
         });
 }
 
-
-function removeClosestHospitals() {
-    reportingLayer.clearLayers();
-    showOnlyDefaultLayer();
-    console.log("Closest hospitals layer removed");
-}
-
-function removeUnknownQueueHospitals() {
-    reportingLayer.clearLayers();
-    showOnlyDefaultLayer();
-    console.log("Unknown queue hospitals layer removed");
-}
-
+/**
+ * Get hospitals created by the current user
+ */
 function getUserHospitals() {
     if (!userId) {
         console.log("User ID not ready yet.");
@@ -375,6 +404,7 @@ function getUserHospitals() {
 
             if (!data || !data.features || data.features.length === 0) {
                 console.log("No hospitals found for this user.");
+                defaultHospitalLayer.clearLayers();
                 return;
             }
 
@@ -387,13 +417,18 @@ function getUserHospitals() {
 
                     popupHospitalLookup[hospitalId] = props;
 
-                    let popupContent = "<div id='popup-" + hospitalId + "'>";
-                    popupContent += "<b>" + (props.hospital_name || "Hospital") + "</b><br>";
-                    popupContent += "Hospital ID: " + hospitalId + "<br>";
-                    popupContent += "Last Inspected: " + (props.last_inspected || "") + "<br>";
-                    popupContent += "Latest Queue: " + (props.queue_length_description || "Unknown") + "<br>";
-                    popupContent += "Latest Cleanliness: " + (props.cleanliness || "") + "<br><br>";
-                    popupContent += "<button type='button' class='btn btn-sm btn-primary' onclick='openQueueCleanlinessFormById(" + hospitalId + ")'>Add Report</button>";
+                    let popupContent = "<div style='min-width:200px;'>";
+                    popupContent += "<h6 style='margin-bottom:5px;'>" + (props.hospital_name || "Hospital") + "</h6>";
+                    popupContent += "<p style='margin:0; font-size:13px;'>";
+                    popupContent += "<strong>ID:</strong> " + hospitalId + "<br>";
+                    popupContent += "<strong>Last Inspected:</strong> " + (props.last_inspected || "N/A") + "<br>";
+                    popupContent += "<strong>Queue:</strong> " + (props.queue_length_description || "Unknown") + "<br>";
+                    popupContent += "<strong>Cleanliness:</strong> " + (props.cleanliness || "N/A");
+                    popupContent += "</p>";
+                    popupContent += "<div style='margin-top:8px; text-align:right;'>";
+                    popupContent += "<button type='button' class='btn btn-sm btn-primary' onclick='openQueueCleanlinessFormById(" + hospitalId + ")'>";
+                    popupContent += "Add Report</button>";
+                    popupContent += "</div>";
                     popupContent += "</div>";
 
                     layer.bindPopup(popupContent);
@@ -417,6 +452,9 @@ function getUserHospitals() {
         });
 }
 
+/**
+ * Get number of reports submitted by current user
+ */
 function getNumCleanlinessQueueReports() {
     if (!userId) {
         return;
@@ -429,52 +467,21 @@ function getNumCleanlinessQueueReports() {
             }
             return response.json();
         })
-       .then(function (data) {
+        .then(function (data) {
+            console.log("Report count response:", data);
 
-    const dialog = document.getElementById("queueCleanlinessFormDialog");
-    if (dialog) {
-        dialog.close();
-    }
-
-    const form = document.getElementById("queueCleanlinessForm");
-    if (form) {
-        form.reset();
-    }
-
-    console.log("Report saved:", data);
-
-    // ✅ NEW: compare queue values
-    if (data && data.array_to_json && data.array_to_json.length > 0) {
-
-        const previous = data.array_to_json[0].previous_queue_length;
-        const current = data.array_to_json[0].current_queue_length;
-
-        if (previous !== null && current !== null) {
-
-            if (current > previous) {
-                alert("Queue is higher than previous report.");
-            } else if (current < previous) {
-                alert("Queue is lower than previous report.");
-            } else {
-                alert("Queue is the same as previous report.");
+            if (data && data.array_to_json && data.array_to_json.length > 0) {
+                alert("You have submitted " + data.array_to_json[0].num_reports + " reports.");
             }
-
-        } else {
-            alert("Report submitted (no previous data available).");
-        }
-
-    } else {
-        alert("Report submitted successfully.");
-    }
-
-    getUserHospitals();
-    getNumCleanlinessQueueReports();
-})
+        })
         .catch(function (error) {
             console.error("Error getting report count:", error);
         });
 }
 
+/**
+ * Get user ranking by number of reports
+ */
 function getUserRanking() {
     if (!userId) {
         return;
@@ -504,6 +511,9 @@ function getUserRanking() {
         });
 }
 
+/**
+ * Get five closest hospitals
+ */
 function getClosestHospitals() {
     if (!currentUserLatLng) {
         alert("User location is not available yet.");
@@ -562,6 +572,18 @@ function getClosestHospitals() {
         });
 }
 
+/**
+ * Remove closest hospitals layer and restore default layer
+ */
+function removeClosestHospitals() {
+    reportingLayer.clearLayers();
+    showOnlyDefaultLayer();
+    console.log("Closest hospitals layer removed");
+}
+
+/**
+ * Get hospitals with unknown queue length for current user
+ */
 function getUnknownQueueHospitals() {
     if (!userId) {
         return;
@@ -619,6 +641,18 @@ function getUnknownQueueHospitals() {
         });
 }
 
+/**
+ * Remove unknown queue layer and restore default layer
+ */
+function removeUnknownQueueHospitals() {
+    reportingLayer.clearLayers();
+    showOnlyDefaultLayer();
+    console.log("Unknown queue hospitals layer removed");
+}
+
+/**
+ * Get bar chart data and render bar chart
+ */
 function getHospitalQueueBarChartData() {
     fetch(apiBase + '/api/geojsonAPI/hospitalsByQueueLength')
         .then(function (response) {
@@ -666,7 +700,7 @@ function getHospitalQueueBarChartData() {
                 hospitalQueueChart.destroy();
             }
 
-          hospitalQueueChart = new Chart(ctx, {
+            hospitalQueueChart = new Chart(ctx, {
                 type: "bar",
                 data: {
                     labels: labels,
@@ -686,7 +720,8 @@ function getHospitalQueueBarChartData() {
                     }
                 }
             });
-			console.log("Bar chart rendered successfully");
+
+            console.log("Bar chart rendered successfully");
 
             const chartContainer = document.getElementById("hospitalQueueChartContainer");
             if (chartContainer) {
@@ -698,5 +733,22 @@ function getHospitalQueueBarChartData() {
             console.error("Error loading hospital queue bar chart data:", error);
             alert("Error loading hospital queue bar chart data.");
         });
-	
+}
+
+/**
+ * Close hospital queue chart
+ */
+function closeHospitalChart() {
+    const chartContainer = document.getElementById("hospitalQueueChartContainer");
+
+    if (chartContainer) {
+        chartContainer.style.display = "none";
+    }
+
+    if (hospitalQueueChart) {
+        hospitalQueueChart.destroy();
+        hospitalQueueChart = null;
+    }
+
+    console.log("Bar chart closed");
 }
