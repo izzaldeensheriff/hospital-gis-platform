@@ -572,7 +572,7 @@ function getHospitalQueueBarChartData() {
                 hospitalQueueChart.destroy();
             }
 
-            hospitalQueueChart = new Chart(ctx, {
+          hospitalQueueChart = new Chart(ctx, {
                 type: "bar",
                 data: {
                     labels: labels,
@@ -592,6 +592,7 @@ function getHospitalQueueBarChartData() {
                     }
                 }
             });
+			console.log("Bar chart rendered successfully");
 
             const chartContainer = document.getElementById("hospitalQueueChartContainer");
             if (chartContainer) {
@@ -603,5 +604,5 @@ function getHospitalQueueBarChartData() {
             console.error("Error loading hospital queue bar chart data:", error);
             alert("Error loading hospital queue bar chart data.");
         });
-		console.log("Bar chart rendered successfully");
+	
 }
