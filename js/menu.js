@@ -1,100 +1,117 @@
-"use strict"
+"use strict";
 
-function menu2(){
-	alert("menu 2");
-}
-function menu3(){
-	alert ("menu 3");
-}
-function menu5(){
-	alert ("menu 5");
-}
-function menu6(){
-	alert ("menu 6");
-}
-function menu8(){
-	alert ("menu 8");
-}
-function menu9(){
-	alert ("menu 9");
-}
-
-/** function showDialog
- * 
- * function to open any dialog box based on its name
- */
 function showDialog(dialogName) {
-	let layerDialog = document.getElementById(dialogName);
-	layerDialog.showModal();
-
+    const dialog = document.getElementById(dialogName);
+    if (!dialog) {
+        console.log("Dialog not found:", dialogName);
+        return;
+    }
+    dialog.showModal();
 }
 
-
-
-/** 
- * function showLayerToLoad
- * 
- * function to open the dialog box
- */
-function showLayerToLoad(e) {
-	let layerDialog = document.getElementById("layerToLoad");
-	layerDialog.showModal();
-
+function closeDialog(dialog) {
+    if (!dialog) {
+        return;
+    }
+    dialog.close();
 }
 
+function getDialogFormValues(dialog) {
+    const formValues = {};
+    const elements = dialog.querySelectorAll("input, select, textarea");
 
-/** 
- * function showLayerList
- * 
- * function to open the dialog box
- */
-function showLayerList(e) {
-	let layerDialog = document.getElementById("allLayers");
-	layerDialog.showModal();
+    elements.forEach(function (element) {
+        if (!element.id && !element.name) {
+            return;
+        }
 
+        if (element.type === "radio") {
+            if (element.checked) {
+                formValues[element.name || element.id] = element.value;
+            }
+        } else if (element.type === "checkbox") {
+            formValues[element.id] = element.checked;
+        } else {
+            formValues[element.id] = element.value;
+        }
+    });
+
+    return formValues;
 }
 
+function saveDialog(dialog) {
+    if (!dialog) {
+        return;
+    }
 
-/** 
- * function closeDialog
- * 
- * close the open dialog boxes
- */
+    const formValues = getDialogFormValues(dialog);
+    console.log("Saving dialog:", dialog.id, formValues);
 
-function closeDialog(dialog){
-	// close  open dialog boxe
-	console.log(dialog.id);
-	dialog.close();
+    if (dialog.id === "hospitalFormDialog") {
+        if (typeof saveNewHospital === "function") {
+            saveNewHospital(formValues);
+        }
+        return;
+    }
+
+    if (dialog.id === "queueCleanlinessFormDialog") {
+        if (typeof saveQueueCleanlinessReport === "function") {
+            saveQueueCleanlinessReport(formValues);
+        }
+        return;
+    }
+
+    dialog.close();
 }
 
-
-/** 
- * function saveDialog
- * 
- * save the open dialog boxes
- * for now just read the content of any input boxes in the dialog
- * and alert as a name/value string
- * 
- */
-
-function saveDialog(dialog){
-	console.log(dialog.id);
-
-	// read content then close any open dialog boxes for now - can adapt this code later on to actually save data
-	let descendents = dialog.getElementsByTagName('*');
-	console.log(descendents.length)
-	let kvpairs = [];
-	for ( let i = 0; i < descendents.length; i++ ) {
-	   let e = descendents[i];
-	   // ignore any elements if they don't have both an ID and a value
-	   if (e.id && e.value) {
-	   		kvpairs.push(encodeURIComponent(e.id) + "=" + encodeURIComponent(e.value));
-	   }
-	}
-	let queryString = kvpairs.join("&");
-	alert(queryString);
-	dialog.close();
+function loadUserHospitals() {
+    if (typeof getUserHospitals === "function") {
+        getUserHospitals();
+    } else {
+        console.log("getUserHospitals is not available");
+    }
 }
 
+function loadDefaultHospitalLayer() {
+    if (typeof removeReportingLayer === "function") {
+        removeReportingLayer();
+    }
 
+    if (typeof getUserHospitals === "function") {
+        getUserHospitals();
+    } else {
+        console.log("getUserHospitals is not available");
+    }
+}
 
+function showUserRanking() {
+    if (typeof getUserRanking === "function") {
+        getUserRanking();
+    } else {
+        console.log("getUserRanking is not available");
+    }
+}
+
+function showClosestHospitalsLayer() {
+    if (typeof getClosestHospitals === "function") {
+        getClosestHospitals();
+    } else {
+        console.log("getClosestHospitals is not available");
+    }
+}
+
+function showUnknownQueueLayer() {
+    if (typeof getUnknownQueueHospitals === "function") {
+        getUnknownQueueHospitals();
+    } else {
+        console.log("getUnknownQueueHospitals is not available");
+    }
+}
+
+function showHospitalBarChart() {
+    if (typeof getHospitalQueueBarChartData === "function") {
+        getHospitalQueueBarChartData();
+    } else {
+        console.log("getHospitalQueueBarChartData is not available");
+    }
+}
