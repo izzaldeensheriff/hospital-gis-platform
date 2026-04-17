@@ -338,6 +338,16 @@ function removeClosestHospitals() {
     console.log("Closest hospitals layer removed");
 }
 
+function removeUnknownQueueHospitals() {
+    reportingLayer.clearLayers();
+
+    if (typeof loadDefaultHospitalLayer === "function") {
+        loadDefaultHospitalLayer();
+    }
+
+    console.log("Unknown queue hospitals layer removed");
+}
+
 function getUserHospitals() {
     if (!userId) {
         console.log("User ID not ready yet.");

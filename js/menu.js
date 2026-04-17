@@ -122,3 +122,10 @@ function removeClosestHospitalsLayer() {
         console.log("removeClosestHospitals not found");
     }
 }
+function removeUnknownQueueLayer() {
+    if (typeof removeUnknownQueueHospitals === "function") {
+        removeUnknownQueueHospitals();
+    } else {
+        console.log("removeUnknownQueueHospitals not found");
+    }
+}
