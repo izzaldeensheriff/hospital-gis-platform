@@ -280,7 +280,9 @@ function saveQueueCleanlinessReport(formValues) {
         alert("Please select a queue length and make sure the hospital is valid.");
         return;
     }
-
+if (!confirm("Are you sure you want to submit this report?")) {
+    return;
+}
     const payload = {
         hospital_name: hospitalName,
         cleanliness: cleanliness,
