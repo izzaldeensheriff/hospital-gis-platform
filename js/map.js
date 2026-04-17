@@ -63,6 +63,10 @@ function loadMap() {
     mymap.on('click', onMapClick);
 
     getUserLocation();
+
+    // ✅ important fix for resizing
+    refreshMapSize();
+	    setTimeout(refreshMapSize, 500);
 }
 
 /**
@@ -176,3 +180,20 @@ function clearMapLayers() {
     defaultHospitalLayer.clearLayers();
     reportingLayer.clearLayers();
 }
+
+/**
+ * Fix map rendering after layout resize
+ */
+function refreshMapSize() {
+    if (mymap) {
+        setTimeout(function () {
+            mymap.invalidateSize(true);
+            mymap.setView(mymap.getCenter(), mymap.getZoom());
+        }, 300);
+    }
+}
+
+/**
+ * Listen to window resize
+ */
+window.addEventListener("resize", refreshMapSize);
