@@ -1,43 +1,194 @@
+"use strict";
 
 /**
- * variable to store the leaflet map so that we can get hold of the map and make changes via code
+ * Global map object
  */
-let mymap; // stores the leaflet map
-
-
-
+let mymap;
 
 /**
- * variable to store the leaflet layer control so that we can get hold of the map and make changes via code
+ * Layer control
  */
-let layerControl; // the leaflet layer control
-
+let layerControl;
 
 /**
- * function to load a leaflet map in to an existing DIV, with OSM baselayer and a default layer control created for later use
+ * Mode control
  */
+let hospitalCreationMode = false;
 
+/**
+ * Selected hospital location
+ */
+let selectedHospitalLatLng = null;
+
+/**
+ * Layers
+ */
+let defaultHospitalLayer = L.layerGroup();
+let reportingLayer = L.layerGroup();
+let userLocationLayer = L.layerGroup();
+
+/**
+ * User location
+ */
+let currentUserLatLng = null;
+
+/**
+ * Load map
+ */
 function loadMap() {
+    mymap = L.map('mapid', {
+        zoomControl: true
+    }).setView([51.505, -0.09], 13);
 
-    // note the ordering of events below - the load event is set when the map is first initiatlised i.e. zoom etc set
-    // so the load event needs to be set BEFORE the setView
-    mymap = L.map('mapid').setView([51.505, -0.09], 13);
-    let osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    const osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        attribution: '&copy; OpenStreetMap contributors'
     }).addTo(mymap);
 
-    let baseMaps = {
-        "OpenStreetMap": osm,
+    const baseMaps = {
+        "OpenStreetMap": osm
     };
 
-    let overlayMaps = {
+    const overlayMaps = {
+        "My Hospitals": defaultHospitalLayer,
+        "Reporting Layer": reportingLayer,
+        "My Location": userLocationLayer
     };
 
-    layerControl = L.control.layers(baseMaps,overlayMaps).addTo(mymap);
+    defaultHospitalLayer.addTo(mymap);
+    userLocationLayer.addTo(mymap);
 
-    mymap.on('click', onMapClickDiv);
-    mymap.on('keydown', keyPressZoomToPoint);
+    layerControl = L.control.layers(baseMaps, overlayMaps).addTo(mymap);
 
+    mymap.on('click', onMapClick);
 
-} // end loadMap
+    loadUserLocation();
+}
+
+/**
+ * Handle map click
+ *
+ * @param {Object} e - Leaflet click event
+ */
+function onMapClick(e) {
+    if (!hospitalCreationMode) {
+        return;
+    }
+
+    selectedHospitalLatLng = e.latlng;
+
+    document.getElementById("hospital_latitude").value = e.latlng.lat;
+    document.getElementById("hospital_longitude").value = e.latlng.lng;
+    document.getElementById("hospital_user_id").value = userId;
+
+    showDialog("hospitalFormDialog");
+}
+
+/**
+ * Enable hospital creation mode
+ */
+function enableHospitalCreation() {
+    hospitalCreationMode = true;
+    console.log("Hospital creation mode enabled");
+}
+
+/**
+ * Disable hospital creation mode
+ */
+function disableHospitalCreation() {
+    hospitalCreationMode = false;
+    selectedHospitalLatLng = null;
+}
+
+/**
+ * Load user location using browser GPS
+ */
+function loadUserLocation() {
+    if (!navigator.geolocation) {
+        console.log("Geolocation not supported");
+        return;
+    }
+
+    navigator.geolocation.watchPosition(
+        function (position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+
+            currentUserLatLng = [lat, lng];
+            updateUserLocation(lat, lng);
+        },
+        function (error) {
+            console.log("Geolocation error:", error.message);
+        },
+        {
+            enableHighAccuracy: true
+        }
+    );
+}
+
+/**
+ * Update user location marker
+ *
+ * @param {number} lat
+ * @param {number} lng
+ */
+function updateUserLocation(lat, lng) {
+    userLocationLayer.clearLayers();
+
+    const marker = L.marker([lat, lng]).bindPopup("Your Location");
+    userLocationLayer.addLayer(marker);
+}
+
+/**
+ * Zoom to user location
+ */
+function zoomToUserLocation() {
+    if (!currentUserLatLng) {
+        alert("User location not available yet");
+        return;
+    }
+
+    mymap.setView(currentUserLatLng, 16);
+}
+
+/**
+ * Clear all layers except base map
+ */
+function clearMapLayers() {
+    defaultHospitalLayer.clearLayers();
+    reportingLayer.clearLayers();
+}
+
+/**
+ * Remove reporting layer and restore default hospital layer
+ */
+function removeReportingLayer() {
+    reportingLayer.clearLayers();
+
+    if (!mymap.hasLayer(defaultHospitalLayer)) {
+        defaultHospitalLayer.addTo(mymap);
+    }
+}
+
+/**
+ * Reload map data
+ */
+function reloadMapData() {
+    console.log("Reloading data...");
+
+    if (typeof loadUserHospitals === "function") {
+        loadUserHospitals();
+    }
+}
+
+/**
+ * Add a hospital marker to the default layer
+ *
+ * @param {number} lat
+ * @param {number} lng
+ * @param {string} name
+ */
+function addHospitalMarker(lat, lng, name) {
+    const marker = L.marker([lat, lng]).bindPopup("<b>" + name + "</b>");
+    defaultHospitalLayer.addLayer(marker);
+}
