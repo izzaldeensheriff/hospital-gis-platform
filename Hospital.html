@@ -27,33 +27,52 @@
           crossorigin="">
 
     <style>
-        html, body {
-            height: 100%;
-            overflow: hidden;
+    html, body {
+        height: 100%;
+        overflow: hidden;
+    }
+
+    #wrapper {
+        height: 100vh;
+    }
+
+    #mainContent {
+        height: 100vh;
+    }
+
+    #mapWrapper {
+        margin-top: 65px;
+        height: calc(100vh - 65px);
+    }
+
+    #mapid {
+        width: 100%;
+        height: 100%;
+    }
+
+    .dropdown-menu .dropdown-item {
+        cursor: pointer;
+    }
+
+    /* keep sidebar visible on small screens for assignment testing */
+    @media (max-width: 991.98px) {
+        .sidebar {
+            margin-left: 0 !important;
+            width: 240px !important;
+            min-width: 240px !important;
+            display: block !important;
         }
 
-        #wrapper {
-            height: 100vh;
+        .content {
+            margin-left: 0 !important;
+            width: calc(100% - 240px) !important;
         }
 
         #mainContent {
-            height: 100vh;
+            width: calc(100% - 240px) !important;
         }
-
-        #mapWrapper {
-            margin-top: 65px;
-            height: calc(100vh - 65px);
-        }
-
-        #mapid {
-            width: 100%;
-            height: 100%;
-        }
-
-        .dropdown-menu .dropdown-item {
-            cursor: pointer;
-        }
-    </style>
+    }
+</style>
 </head>
 
 <body>
