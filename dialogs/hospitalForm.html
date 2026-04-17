@@ -1,43 +1,51 @@
-<dialog id="hospitalFormDialog">
-    <form id="hospitalForm" class="p-3" style="min-width: 320px;">
-        <h5 class="mb-3">Add New Hospital</h5>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hospital Form</title>
+</head>
+<body>
+    <dialog id="hospitalFormDialog">
+        <form id="hospitalForm" class="p-3" style="min-width: 320px;">
+            <h5 class="mb-3">Add New Hospital</h5>
 
-        <!-- Hidden fields -->
-        <input type="hidden" id="hospital_user_id">
-        <input type="hidden" id="hospital_latitude">
-        <input type="hidden" id="hospital_longitude">
+            <input type="hidden" id="hospital_user_id">
+            <input type="hidden" id="hospital_latitude">
+            <input type="hidden" id="hospital_longitude">
 
-        <div class="mb-3">
-            <label for="hospital_name" class="form-label">Hospital Name</label>
-            <input type="text"
-                   class="form-control"
-                   id="hospital_name"
-                   placeholder="Enter hospital name"
-                   required>
-        </div>
+            <div class="mb-3">
+                <label for="hospital_name" class="form-label">Hospital Name</label>
+                <input type="text"
+                       class="form-control"
+                       id="hospital_name"
+                       placeholder="Enter hospital name"
+                       required>
+            </div>
 
-        <div class="mb-3">
-            <label for="hospital_inspection_date" class="form-label">
-                Hospital Last Officially Inspected
-            </label>
-            <input type="date"
-                   class="form-control"
-                   id="hospital_inspection_date"
-                   required>
-        </div>
+            <div class="mb-3">
+                <label for="hospital_inspection_date" class="form-label">
+                    Hospital Last Officially Inspected
+                </label>
+                <input type="date"
+                       class="form-control"
+                       id="hospital_inspection_date"
+                       required>
+            </div>
 
-        <div class="d-flex justify-content-end gap-2">
-            <button type="button"
-                    class="btn btn-secondary"
-                    onclick="closeDialog(document.getElementById('hospitalFormDialog'));">
-                Cancel
-            </button>
+            <div class="d-flex justify-content-end gap-2">
+                <button type="button"
+                        class="btn btn-secondary"
+                        onclick="closeDialog(document.getElementById('hospitalFormDialog'));">
+                    Cancel
+                </button>
 
-            <button type="button"
-                    class="btn btn-primary"
-                    onclick="saveDialog(document.getElementById('hospitalFormDialog'));">
-                Save New Hospital
-            </button>
-        </div>
-    </form>
-</dialog>
+                <button type="button"
+                        class="btn btn-primary"
+                        onclick="saveDialog(document.getElementById('hospitalFormDialog'));">
+                    Save New Hospital
+                </button>
+            </div>
+        </form>
+    </dialog>
+</body>
+</html>
