@@ -542,20 +542,23 @@ function getHospitalQueueBarChartData() {
             if (Array.isArray(data)) {
                 data.forEach(function (item) {
                     labels.push(item.queue_length_description || "Unknown");
-                    values.push(Number(item.count) || 0);
+                    values.push(Number(item.num_hospitals) || 0);
                 });
             } else if (data.array_to_json) {
                 data.array_to_json.forEach(function (item) {
                     labels.push(item.queue_length_description || "Unknown");
-                    values.push(Number(item.count) || 0);
+                    values.push(Number(item.num_hospitals) || 0);
                 });
             } else if (data.features) {
                 data.features.forEach(function (feature) {
                     const props = feature.properties || {};
                     labels.push(props.queue_length_description || "Unknown");
-                    values.push(Number(props.count) || 0);
+                    values.push(Number(props.num_hospitals) || 0);
                 });
             }
+
+            console.log("Chart labels:", labels);
+            console.log("Chart values:", values);
 
             const canvas = document.getElementById("hospitalQueueChart");
             if (!canvas) {
@@ -581,7 +584,7 @@ function getHospitalQueueBarChartData() {
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
+                    maintainAspectRatio: false,
                     scales: {
                         y: {
                             beginAtZero: true
@@ -589,6 +592,12 @@ function getHospitalQueueBarChartData() {
                     }
                 }
             });
+
+            const chartContainer = document.getElementById("hospitalQueueChartContainer");
+            if (chartContainer) {
+                chartContainer.style.display = "block";
+                chartContainer.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
         })
         .catch(function (error) {
             console.error("Error loading hospital queue bar chart data:", error);
