@@ -581,9 +581,15 @@ function getUnknownQueueHospitals() {
                 },
                 onEachFeature: function (feature, layer) {
                     const props = feature.properties || {};
-                    let popupContent = "<b>" + (props.hospital_name || "Hospital") + "</b><br>";
-                    popupContent += "Latest Queue: " + (props.queue_length_description || "Unknown") + "<br>";
-                    popupContent += "Latest Cleanliness: " + (props.cleanliness || "");
+                    let popupContent = "<div style='min-width:200px;'>";
+                    popupContent += "<h6 style='margin-bottom:5px;'>" + (props.hospital_name || "Hospital") + "</h6>";
+                    popupContent += "<p style='margin:0; font-size:13px;'>";
+                    popupContent += "<strong>Queue:</strong> " + (props.queue_length_description || "Unknown") + "<br>";
+                    popupContent += "<strong>Cleanliness:</strong> " + (props.cleanliness || "N/A") + "<br>";
+                    popupContent += "<strong>Reporting:</strong> Not available on unknown queue layer";
+                    popupContent += "</p>";
+                    popupContent += "</div>";
+
                     layer.bindPopup(popupContent);
                 }
             });
