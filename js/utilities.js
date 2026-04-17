@@ -16,6 +16,8 @@ let queueLengthOptions = [];
  */
 let popupHospitalLookup = {};
 
+let hospitalQueueChart = null;
+
 /**
  * Base URL for API requests
  */
@@ -533,9 +535,63 @@ function getHospitalQueueBarChartData() {
         })
         .then(function (data) {
             console.log("Hospital bar chart data:", data);
-            alert("Bar chart data loaded. Chart rendering is the next step.");
+
+            let labels = [];
+            let values = [];
+
+            if (Array.isArray(data)) {
+                data.forEach(function (item) {
+                    labels.push(item.queue_length_description || "Unknown");
+                    values.push(Number(item.count) || 0);
+                });
+            } else if (data.array_to_json) {
+                data.array_to_json.forEach(function (item) {
+                    labels.push(item.queue_length_description || "Unknown");
+                    values.push(Number(item.count) || 0);
+                });
+            } else if (data.features) {
+                data.features.forEach(function (feature) {
+                    const props = feature.properties || {};
+                    labels.push(props.queue_length_description || "Unknown");
+                    values.push(Number(props.count) || 0);
+                });
+            }
+
+            const canvas = document.getElementById("hospitalQueueChart");
+            if (!canvas) {
+                alert("Chart canvas not found.");
+                return;
+            }
+
+            const ctx = canvas.getContext("2d");
+
+            if (hospitalQueueChart) {
+                hospitalQueueChart.destroy();
+            }
+
+            hospitalQueueChart = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: "Number of Hospitals",
+                        data: values,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
         })
         .catch(function (error) {
             console.error("Error loading hospital queue bar chart data:", error);
+            alert("Error loading hospital queue bar chart data.");
         });
 }
