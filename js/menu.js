@@ -115,3 +115,10 @@ function showHospitalBarChart() {
         console.log("getHospitalQueueBarChartData is not available");
     }
 }
+function removeClosestHospitalsLayer() {
+    if (typeof removeClosestHospitals === "function") {
+        removeClosestHospitals();
+    } else {
+        console.log("removeClosestHospitals not found");
+    }
+}

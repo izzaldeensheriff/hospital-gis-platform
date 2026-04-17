@@ -326,6 +326,18 @@ if (!confirm("Are you sure you want to submit this report?")) {
         });
 }
 
+
+function removeClosestHospitals() {
+    reportingLayer.clearLayers();
+
+    // restore default layer (VERY IMPORTANT for marking)
+    if (typeof loadDefaultHospitalLayer === "function") {
+        loadDefaultHospitalLayer();
+    }
+
+    console.log("Closest hospitals layer removed");
+}
+
 function getUserHospitals() {
     if (!userId) {
         console.log("User ID not ready yet.");

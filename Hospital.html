@@ -121,27 +121,35 @@
                         </div>
                     </div>
 
-                    <!-- Small screen -->
-                    <div class="nav-item dropdown d-md-none">
-                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                            <i class="fa fa-mobile-alt me-2"></i>Queue App
-                        </a>
+                  <!-- Small screen -->
+<div class="nav-item dropdown d-md-none">
+    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+        <i class="fa fa-mobile-alt me-2"></i>Queue App
+    </a>
 
-                        <div class="dropdown-menu bg-light border-0">
-                            <a class="dropdown-item" href="#" onclick="loadDefaultHospitalLayer(); return false;">
-                                Show My Hospitals
-                            </a>
-                            <a class="dropdown-item" href="#" onclick="showUserRanking(); return false;">
-                                User Ranking
-                            </a>
-                            <a class="dropdown-item" href="#" onclick="showClosestHospitalsLayer(); return false;">
-                                Closest Hospitals
-                            </a>
-                            <a class="dropdown-item" href="#" onclick="showUnknownQueueLayer(); return false;">
-                                Unknown Queue
-                            </a>
-                        </div>
-                    </div>
+    <div class="dropdown-menu bg-light border-0">
+        <a class="dropdown-item" href="#" onclick="loadDefaultHospitalLayer(); return false;">
+            Show My Hospitals
+        </a>
+
+        <a class="dropdown-item" href="#" onclick="showUserRanking(); return false;">
+            User Ranking
+        </a>
+
+        <a class="dropdown-item" href="#" onclick="showClosestHospitalsLayer(); return false;">
+            Closest Hospitals
+        </a>
+
+        <!-- ✅ REQUIRED REMOVE OPTION -->
+        <a class="dropdown-item" href="#" onclick="removeClosestHospitalsLayer(); return false;">
+            Remove Closest Hospitals
+        </a>
+
+        <a class="dropdown-item" href="#" onclick="showUnknownQueueLayer(); return false;">
+            Unknown Queue
+        </a>
+    </div>
+</div>
 
                     <!-- Common -->
                     <div class="nav-item dropdown">
