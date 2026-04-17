@@ -523,9 +523,15 @@ function getClosestHospitals() {
             const geojsonLayer = L.geoJSON(data, {
                 onEachFeature: function (feature, layer) {
                     const props = feature.properties || {};
-                    let popupContent = "<b>" + (props.hospital_name || "Hospital") + "</b><br>";
-                    popupContent += "Hospital ID: " + (props.hospital_id || "") + "<br>";
-                    popupContent += "Last Inspected: " + (props.last_inspected || "");
+                    let popupContent = "<div style='min-width:200px;'>";
+                    popupContent += "<h6 style='margin-bottom:5px;'>" + (props.hospital_name || "Hospital") + "</h6>";
+                    popupContent += "<p style='margin:0; font-size:13px;'>";
+                    popupContent += "<strong>ID:</strong> " + (props.hospital_id || "") + "<br>";
+                    popupContent += "<strong>Last Inspected:</strong> " + (props.last_inspected || "N/A") + "<br>";
+                    popupContent += "<strong>Reporting:</strong> Not available on closest hospitals layer";
+                    popupContent += "</p>";
+                    popupContent += "</div>";
+
                     layer.bindPopup(popupContent);
                 }
             });
