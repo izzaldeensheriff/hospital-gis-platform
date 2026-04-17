@@ -386,6 +386,49 @@ function saveQueueCleanlinessReport(formValues) {
 /**
  * Get hospitals created by the current user
  */
+ /**
+ * Get marker colour based on queue length description
+ */
+function getQueueColour(queueDescription) {
+    if (!queueDescription) {
+        return "gray";
+    }
+
+    const value = String(queueDescription).toLowerCase();
+
+    if (value.includes("very long") || value.includes("over 4")) {
+        return "red";
+    }
+
+    if (value.includes("moderately long") || value.includes("between 2 and 4")) {
+        return "orange";
+    }
+
+    if (value.includes("ok") || value.includes("between 30 minutes and 2 hours")) {
+        return "yellow";
+    }
+
+    if (value.includes("very short") || value.includes("less than 10 minutes")) {
+        return "darkgreen";
+    }
+
+    if (value.includes("short") || value.includes("less than 30 minutes")) {
+        return "green";
+    }
+
+    if (value.includes("no queue")) {
+        return "blue";
+    }
+
+    if (value.includes("unknown")) {
+        return "gray";
+    }
+
+    return "gray";
+}
+/**
+ * Get hospitals created by the current user
+ */
 function getUserHospitals() {
     if (!userId) {
         console.log("User ID not ready yet.");
@@ -401,16 +444,28 @@ function getUserHospitals() {
         })
         .then(function (data) {
             popupHospitalLookup = {};
+            defaultHospitalLayer.clearLayers();
 
             if (!data || !data.features || data.features.length === 0) {
                 console.log("No hospitals found for this user.");
-                defaultHospitalLayer.clearLayers();
                 return;
             }
 
-            defaultHospitalLayer.clearLayers();
-
             const geojsonLayer = L.geoJSON(data, {
+                pointToLayer: function (feature, latlng) {
+                    const props = feature.properties || {};
+                    const queueDescription = props.queue_length_description || "Unknown";
+                    const fillColour = getQueueColour(queueDescription);
+
+                    return L.circleMarker(latlng, {
+                        radius: 8,
+                        fillColor: fillColour,
+                        color: "#222222",
+                        weight: 1,
+                        opacity: 1,
+                        fillOpacity: 0.85
+                    });
+                },
                 onEachFeature: function (feature, layer) {
                     const props = feature.properties || {};
                     const hospitalId = props.hospital_id || "";
