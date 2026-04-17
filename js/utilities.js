@@ -577,7 +577,7 @@ function getHospitalQueueBarChartData() {
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: "Number of Hospitals",
+                        label: "Hospitals per Queue Length Category",
                         data: values,
                         borderWidth: 1
                     }]
@@ -603,4 +603,5 @@ function getHospitalQueueBarChartData() {
             console.error("Error loading hospital queue bar chart data:", error);
             alert("Error loading hospital queue bar chart data.");
         });
+		console.log("Bar chart rendered successfully");
 }
