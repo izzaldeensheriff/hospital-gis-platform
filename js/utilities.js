@@ -420,13 +420,47 @@ function getNumCleanlinessQueueReports() {
             }
             return response.json();
         })
-        .then(function (data) {
-            console.log("Report count response:", data);
+       .then(function (data) {
 
-            if (data && data.array_to_json && data.array_to_json.length > 0) {
-                alert("You have submitted " + data.array_to_json[0].num_reports + " reports.");
+    const dialog = document.getElementById("queueCleanlinessFormDialog");
+    if (dialog) {
+        dialog.close();
+    }
+
+    const form = document.getElementById("queueCleanlinessForm");
+    if (form) {
+        form.reset();
+    }
+
+    console.log("Report saved:", data);
+
+    // ✅ NEW: compare queue values
+    if (data && data.array_to_json && data.array_to_json.length > 0) {
+
+        const previous = data.array_to_json[0].previous_queue_length;
+        const current = data.array_to_json[0].current_queue_length;
+
+        if (previous !== null && current !== null) {
+
+            if (current > previous) {
+                alert("Queue is higher than previous report.");
+            } else if (current < previous) {
+                alert("Queue is lower than previous report.");
+            } else {
+                alert("Queue is the same as previous report.");
             }
-        })
+
+        } else {
+            alert("Report submitted (no previous data available).");
+        }
+
+    } else {
+        alert("Report submitted successfully.");
+    }
+
+    getUserHospitals();
+    getNumCleanlinessQueueReports();
+})
         .catch(function (error) {
             console.error("Error getting report count:", error);
         });
