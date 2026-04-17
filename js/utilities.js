@@ -163,6 +163,24 @@ function openQueueCleanlinessForm(properties) {
     showDialog("queueCleanlinessFormDialog");
 }
 
+function showOnlyDefaultLayer() {
+    reportingLayer.clearLayers();
+
+    if (typeof getUserHospitals === "function") {
+        getUserHospitals();
+    }
+
+    console.log("Default hospital layer restored");
+}
+
+function showOnlyReportingLayer() {
+    defaultHospitalLayer.clearLayers();
+    reportingLayer.clearLayers();
+
+    console.log("Reporting layer mode activated");
+}
+
+
 function openQueueCleanlinessFormById(hospitalId) {
     const props = popupHospitalLookup[hospitalId];
     if (props) {
@@ -329,22 +347,13 @@ if (!confirm("Are you sure you want to submit this report?")) {
 
 function removeClosestHospitals() {
     reportingLayer.clearLayers();
-
-    // restore default layer (VERY IMPORTANT for marking)
-    if (typeof loadDefaultHospitalLayer === "function") {
-        loadDefaultHospitalLayer();
-    }
-
+    showOnlyDefaultLayer();
     console.log("Closest hospitals layer removed");
 }
 
 function removeUnknownQueueHospitals() {
     reportingLayer.clearLayers();
-
-    if (typeof loadDefaultHospitalLayer === "function") {
-        loadDefaultHospitalLayer();
-    }
-
+    showOnlyDefaultLayer();
     console.log("Unknown queue hospitals layer removed");
 }
 
@@ -504,8 +513,7 @@ function getClosestHospitals() {
     const latitude = currentUserLatLng[0];
     const longitude = currentUserLatLng[1];
 
-    defaultHospitalLayer.clearLayers();
-    reportingLayer.clearLayers();
+    showOnlyReportingLayer();
 
     fetch(apiBase + '/api/geojsonAPI/fiveClosestHospitals/' + latitude + '/' + longitude)
         .then(function (response) {
@@ -559,8 +567,7 @@ function getUnknownQueueHospitals() {
         return;
     }
 
-    defaultHospitalLayer.clearLayers();
-    reportingLayer.clearLayers();
+    showOnlyReportingLayer();
 
     fetch(apiBase + '/api/geojsonAPI/hospitalsQueueLengthUnknown/' + userId)
         .then(function (response) {

@@ -73,14 +73,10 @@ function loadUserHospitals() {
 }
 
 function loadDefaultHospitalLayer() {
-    if (typeof removeReportingLayer === "function") {
-        removeReportingLayer();
-    }
-
-    if (typeof getUserHospitals === "function") {
+    if (typeof showOnlyDefaultLayer === "function") {
+        showOnlyDefaultLayer();
+    } else if (typeof getUserHospitals === "function") {
         getUserHospitals();
-    } else {
-        console.log("getUserHospitals is not available");
     }
 }
 
