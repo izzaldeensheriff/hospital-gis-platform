@@ -1,57 +1,83 @@
 "use strict";
-console.log("utilities.js loaded");
 
 /**
- * Global user ID
+ * Global user ID.
  */
 let userId = null;
 
 /**
- * Queue length options loaded from database
+ * Queue length options loaded from the database.
  */
 let queueLengthOptions = [];
 
 /**
- * Stores hospital properties temporarily for popup report buttons
+ * Hospital properties lookup for popup report buttons.
  */
 let popupHospitalLookup = {};
 
 /**
- * Bar chart instance
+ * Current chart instance.
  */
 let hospitalQueueChart = null;
 
 /**
- * Base URL for API requests
+ * Stores current user's hospital GeoJSON features.
+ */
+let userHospitalFeatures = [];
+
+/**
+ * Prevent repeated proximity popups for the same hospital.
+ */
+let lastProximityHospitalId = null;
+
+/**
+ * Base URL for API requests.
  */
 const apiBase = window.location.origin;
 
 /**
- * Run when page loads
+ * Route prefixes. Change only if your API uses different route names.
  */
-document.addEventListener('DOMContentLoaded', function () {
-    console.log("listener domcontentloaded");
-    console.log("API base:", apiBase);
+const crudRoute = "crudAPI";
+const geoJsonRoute = "geojsonAPI";
 
+/**
+ * Run when the page loads.
+ */
+document.addEventListener("DOMContentLoaded", function () {
     if (typeof loadMap === "function" && !window._mapAlreadyLoaded) {
         loadMap();
         window._mapAlreadyLoaded = true;
     }
 
-    getUserIdFromAPI();
+    getUserIdFromApi();
 }, false);
 
 /**
- * Get user ID from API
+ * Build a CRUD API URL.
+ * @param {string} endpoint - Endpoint path without leading slash.
+ * @returns {string} Full API URL.
  */
-function getUserIdFromAPI() {
-    fetch(apiBase + '/api/crudAPI/user_id', { cache: 'no-store' })
+function buildCrudUrl(endpoint) {
+    return apiBase + "/api/" + crudRoute + "/" + endpoint;
+}
+
+/**
+ * Build a GeoJSON API URL.
+ * @param {string} endpoint - Endpoint path without leading slash.
+ * @returns {string} Full API URL.
+ */
+function buildGeoJsonUrl(endpoint) {
+    return apiBase + "/api/" + geoJsonRoute + "/" + endpoint;
+}
+
+/**
+ * Get the user ID from the API.
+ */
+function getUserIdFromApi() {
+    fetch(buildCrudUrl("user_id"), { cache: "no-store" })
         .then(function (response) {
             return response.text().then(function (rawText) {
-                console.log("user_id URL:", apiBase + '/api/crudAPI/user_id');
-                console.log("user_id status:", response.status);
-                console.log("Raw user_id response:", rawText);
-
                 if (!response.ok) {
                     throw new Error("HTTP " + response.status + ": " + rawText);
                 }
@@ -59,7 +85,7 @@ function getUserIdFromAPI() {
                 const parsedUserId = Number(rawText.trim());
 
                 if (!Number.isInteger(parsedUserId)) {
-                    throw new Error("user_id is not a valid integer. Raw response was: " + rawText);
+                    throw new Error("user_id is not a valid integer.");
                 }
 
                 userId = parsedUserId;
@@ -70,11 +96,10 @@ function getUserIdFromAPI() {
                 }
 
                 getQueueLengths();
-                loadDefaultHospitalLayer();
+                showOnlyDefaultLayer();
             });
         })
-        .catch(function (error) {
-            console.error("Error fetching user ID:", error);
+        .catch(function () {
             const userDisplay = document.getElementById("userIdDisplay");
             if (userDisplay) {
                 userDisplay.innerText = "User ID load failed";
@@ -83,10 +108,10 @@ function getUserIdFromAPI() {
 }
 
 /**
- * Get queue length options from API
+ * Get queue length options from the API.
  */
 function getQueueLengths() {
-    fetch(apiBase + '/api/geojsonAPI/getQueueLengths')
+    fetch(buildGeoJsonUrl("getQueueLengths"))
         .then(function (response) {
             if (!response.ok) {
                 throw new Error("Server error: " + response.status);
@@ -97,13 +122,13 @@ function getQueueLengths() {
             queueLengthOptions = data.features || [];
             buildQueueLengthOptions();
         })
-        .catch(function (error) {
-            console.error("Error loading queue lengths:", error);
+        .catch(function () {
+            return;
         });
 }
 
 /**
- * Build radio button options for queue lengths
+ * Build radio button options for queue lengths.
  */
 function buildQueueLengthOptions() {
     const container = document.getElementById("queueLengthOptions");
@@ -131,43 +156,146 @@ function buildQueueLengthOptions() {
             'id="' + optionId + '" value="' + (props.queue_length_description || "") + '">' +
             '<label class="form-check-label" for="' + optionId + '">' +
             (props.queue_length_description || "Unknown") +
-            '</label>';
+            "</label>";
 
         container.appendChild(wrapper);
     });
 }
 
 /**
+ * Restore only the default user hospital layer.
+ */
+/**
  * Restore only the default user hospital layer
  */
 function showOnlyDefaultLayer() {
     reportingLayer.clearLayers();
 
-    if (typeof getUserHospitals === "function") {
-        getUserHospitals();
+    if (mymap.hasLayer(reportingLayer)) {
+        mymap.removeLayer(reportingLayer);
     }
 
-    console.log("Default hospital layer restored");
+    if (!mymap.hasLayer(defaultHospitalLayer)) {
+        defaultHospitalLayer.addTo(mymap);
+    }
+
+    getUserHospitals();
 }
 
+/**
+ * Switch to reporting layer mode only.
+ */
 /**
  * Switch to reporting layer mode only
  */
 function showOnlyReportingLayer() {
     defaultHospitalLayer.clearLayers();
+
+    if (mymap.hasLayer(defaultHospitalLayer)) {
+        mymap.removeLayer(defaultHospitalLayer);
+    }
+
     reportingLayer.clearLayers();
 
-    console.log("Reporting layer mode activated");
+    if (!mymap.hasLayer(reportingLayer)) {
+        reportingLayer.addTo(mymap);
+    }
+
+    lastProximityHospitalId = null;
 }
 
 /**
- * Open queue and cleanliness report form
+ * Check whether the default hospital layer is currently active.
+ * Proximity alerts are only active on small screens with the default layer.
+ * @returns {boolean} True if default layer is active.
+ */
+function isDefaultLayerActive() {
+    if (!mymap) {
+        return false;
+    }
+
+    const reportingLayerEmpty = reportingLayer.getLayers().length === 0;
+    const isSmallScreen = window.innerWidth < 768;
+
+    return isSmallScreen && mymap.hasLayer(defaultHospitalLayer) && reportingLayerEmpty;
+}
+
+/**
+ * Check whether the user is within 25m of one of their hospitals
+ * for the last five recorded positions, then open the report form.
+ */
+function checkProximityAlert() {
+    if (!isDefaultLayerActive()) {
+        lastProximityHospitalId = null;
+        return;
+    }
+
+    if (!lastFivePositions || lastFivePositions.length < 5) {
+        return;
+    }
+
+    if (!userHospitalFeatures || userHospitalFeatures.length === 0) {
+        return;
+    }
+
+    let matchedHospital = null;
+
+    userHospitalFeatures.forEach(function (feature) {
+        if (matchedHospital) {
+            return;
+        }
+
+        if (!feature.geometry || !feature.geometry.coordinates) {
+            return;
+        }
+
+        const coords = feature.geometry.coordinates;
+        const hospitalLatLng = L.latLng(coords[1], coords[0]);
+
+        const allFiveWithinRange = lastFivePositions.every(function (userPosition) {
+            return userPosition.distanceTo(hospitalLatLng) <= 25;
+        });
+
+        if (allFiveWithinRange) {
+            matchedHospital = feature;
+        }
+    });
+
+    if (!matchedHospital) {
+        lastProximityHospitalId = null;
+        return;
+    }
+
+    const props = matchedHospital.properties || {};
+    const hospitalId = props.hospital_id;
+
+    if (!hospitalId) {
+        return;
+    }
+
+    if (hospitalId === lastProximityHospitalId) {
+        return;
+    }
+
+    lastProximityHospitalId = hospitalId;
+
+    if (popupHospitalLookup[hospitalId]) {
+        openQueueCleanlinessForm(popupHospitalLookup[hospitalId]);
+    }
+}
+
+/**
+ * Open the queue and cleanliness report form.
+ * @param {Object} properties - Hospital properties.
  */
 function openQueueCleanlinessForm(properties) {
     const hospitalIdInput = document.getElementById("report_hospital_id");
     const hospitalNameInput = document.getElementById("report_hospital_name");
     const reportUserInput = document.getElementById("report_user_id");
     const hospitalNameDisplay = document.getElementById("report_hospital_name_display");
+    const previousQueueInput = document.getElementById("previous_queue_length_id");
+    const textarea = document.getElementById("cleanliness");
+    const radios = document.querySelectorAll('input[name="queue_length_description"]');
 
     if (hospitalIdInput) {
         hospitalIdInput.value = properties.hospital_id || "";
@@ -185,17 +313,14 @@ function openQueueCleanlinessForm(properties) {
         hospitalNameDisplay.innerText = properties.hospital_name || "";
     }
 
-    const previousQueueInput = document.getElementById("previous_queue_length_id");
     if (previousQueueInput) {
         previousQueueInput.value = properties.queue_length_id || "";
     }
 
-    const textarea = document.getElementById("cleanliness");
     if (textarea) {
         textarea.value = "";
     }
 
-    const radios = document.querySelectorAll('input[name="queue_length_description"]');
     radios.forEach(function (radio) {
         radio.checked = false;
     });
@@ -204,19 +329,19 @@ function openQueueCleanlinessForm(properties) {
 }
 
 /**
- * Open queue and cleanliness form by hospital ID
+ * Open the queue and cleanliness form by hospital ID.
+ * @param {number|string} hospitalId - Hospital ID.
  */
 function openQueueCleanlinessFormById(hospitalId) {
     const props = popupHospitalLookup[hospitalId];
     if (props) {
         openQueueCleanlinessForm(props);
-    } else {
-        console.log("No hospital properties found for hospital ID:", hospitalId);
     }
 }
 
 /**
- * Save new hospital
+ * Save a new hospital.
+ * @param {Object} formValues - Form values.
  */
 function saveNewHospital(formValues) {
     const hospitalName = formValues.hospital_name ? formValues.hospital_name.trim() : "";
@@ -243,43 +368,29 @@ function saveNewHospital(formValues) {
         longitude: longitude
     };
 
-    fetch(apiBase + '/api/crudAPI/insertHospital', {
-        method: 'POST',
+    fetch(buildCrudUrl("insertHospital"), {
+        method: "POST",
         headers: {
-            'Content-Type': 'application/json'
+            "Content-Type": "application/json"
         },
         body: JSON.stringify(payload)
     })
         .then(function (response) {
             if (!response.ok) {
-                throw new Error("Server error: " + response.status);
+                return response.text().then(function (text) {
+                    throw new Error(text || ("Server error: " + response.status));
+                });
             }
             return response.json();
         })
-        .then(function (data) {
-            console.log("Hospital saved:", data);
-
-            const lat = parseFloat(latitude);
-            const lng = parseFloat(longitude);
-
-            const marker = L.marker([lat, lng]).bindPopup(
-                "<b>" + hospitalName + "</b><br>Last Inspected: " + inspectionDate + "<br>Latest Queue: Unknown"
-            );
-
-            defaultHospitalLayer.addLayer(marker);
-
-            if (!mymap.hasLayer(defaultHospitalLayer)) {
-                defaultHospitalLayer.addTo(mymap);
-            }
-
-            mymap.setView([lat, lng], 16);
-
+        .then(function () {
             const dialog = document.getElementById("hospitalFormDialog");
+            const form = document.getElementById("hospitalForm");
+
             if (dialog) {
                 dialog.close();
             }
 
-            const form = document.getElementById("hospitalForm");
             if (form) {
                 form.reset();
             }
@@ -288,19 +399,22 @@ function saveNewHospital(formValues) {
             disableHospitalCreation();
 
             alert("Hospital saved successfully.");
-
-            setTimeout(function () {
-                getUserHospitals();
-            }, 1500);
+            getUserHospitals();
         })
         .catch(function (error) {
-            console.error("Error saving hospital:", error);
-            alert("Error saving hospital.");
+            const errorMessage = String(error).toLowerCase();
+
+            if (errorMessage.includes("duplicate") || errorMessage.includes("unique")) {
+                alert("That hospital name already exists. Please enter a different hospital name.");
+            } else {
+                alert("Error saving hospital.");
+            }
         });
 }
 
 /**
- * Save cleanliness and queue report
+ * Save a cleanliness and queue report.
+ * @param {Object} formValues - Form values.
  */
 function saveQueueCleanlinessReport(formValues) {
     const hospitalName = formValues.report_hospital_name ? formValues.report_hospital_name.trim() : "";
@@ -309,12 +423,8 @@ function saveQueueCleanlinessReport(formValues) {
     const reportUserId = formValues.report_user_id ? formValues.report_user_id : userId;
     const previousQueueLengthId = formValues.previous_queue_length_id ? Number(formValues.previous_queue_length_id) : null;
 
-    if (!hospitalName || !queueLengthDescription) {
-        alert("Please select a queue length and make sure the hospital is valid.");
-        return;
-    }
-
-    if (!confirm("Are you sure you want to submit this report?")) {
+    if (!hospitalName || !queueLengthDescription || !cleanliness) {
+        alert("Please select a queue length and enter a cleanliness description.");
         return;
     }
 
@@ -325,10 +435,10 @@ function saveQueueCleanlinessReport(formValues) {
         user_id: reportUserId
     };
 
-    fetch(apiBase + '/api/crudAPI/insertCleanlinessQueueReport', {
-        method: 'POST',
+    fetch(buildCrudUrl("insertCleanlinessQueueReport"), {
+        method: "POST",
         headers: {
-            'Content-Type': 'application/json'
+            "Content-Type": "application/json"
         },
         body: JSON.stringify(payload)
     })
@@ -338,13 +448,14 @@ function saveQueueCleanlinessReport(formValues) {
             }
             return response.json();
         })
-        .then(function (data) {
+        .then(function () {
             const dialog = document.getElementById("queueCleanlinessFormDialog");
+            const form = document.getElementById("queueCleanlinessForm");
+
             if (dialog) {
                 dialog.close();
             }
 
-            const form = document.getElementById("queueCleanlinessForm");
             if (form) {
                 form.reset();
             }
@@ -372,22 +483,18 @@ function saveQueueCleanlinessReport(formValues) {
                 alert("Cleanliness/queue report saved successfully.");
             }
 
-            console.log(data);
-
             getUserHospitals();
             getNumCleanlinessQueueReports();
         })
-        .catch(function (error) {
-            console.error("Error saving cleanliness/queue report:", error);
+        .catch(function () {
             alert("Error saving cleanliness/queue report.");
         });
 }
 
 /**
- * Get hospitals created by the current user
- */
- /**
- * Get marker colour based on queue length description
+ * Get marker colour based on queue length description.
+ * @param {string} queueDescription - Queue description text.
+ * @returns {string} Marker colour.
  */
 function getQueueColour(queueDescription) {
     if (!queueDescription) {
@@ -426,16 +533,16 @@ function getQueueColour(queueDescription) {
 
     return "gray";
 }
+
 /**
- * Get hospitals created by the current user
+ * Get hospitals created by the current user.
  */
 function getUserHospitals() {
     if (!userId) {
-        console.log("User ID not ready yet.");
         return;
     }
 
-    fetch(apiBase + '/api/geojsonAPI/hospitalsByUser/' + userId)
+    fetch(buildGeoJsonUrl("hospitalsByUser/" + userId))
         .then(function (response) {
             if (!response.ok) {
                 throw new Error("Server error: " + response.status);
@@ -444,14 +551,16 @@ function getUserHospitals() {
         })
         .then(function (data) {
             popupHospitalLookup = {};
+            userHospitalFeatures = [];
             defaultHospitalLayer.clearLayers();
 
             if (!data || !data.features || data.features.length === 0) {
-                console.log("No hospitals found for this user.");
                 return;
             }
 
-            const geojsonLayer = L.geoJSON(data, {
+            userHospitalFeatures = data.features;
+
+            const geoJsonLayer = L.geoJSON(data, {
                 pointToLayer: function (feature, latlng) {
                     const props = feature.properties || {};
                     const queueDescription = props.queue_length_description || "Unknown";
@@ -490,32 +599,32 @@ function getUserHospitals() {
                 }
             });
 
-            defaultHospitalLayer.addLayer(geojsonLayer);
+            defaultHospitalLayer.addLayer(geoJsonLayer);
 
             if (!mymap.hasLayer(defaultHospitalLayer)) {
                 defaultHospitalLayer.addTo(mymap);
             }
 
             try {
-                mymap.fitBounds(geojsonLayer.getBounds(), { padding: [20, 20] });
+                mymap.fitBounds(geoJsonLayer.getBounds(), { padding: [20, 20] });
             } catch (e) {
-                console.log("Could not fit bounds:", e);
+                return;
             }
         })
-        .catch(function (error) {
-            console.error("Error loading user hospitals:", error);
+        .catch(function () {
+            return;
         });
 }
 
 /**
- * Get number of reports submitted by current user
+ * Get the number of reports submitted by the current user.
  */
 function getNumCleanlinessQueueReports() {
     if (!userId) {
         return;
     }
 
-    fetch(apiBase + '/api/geojsonAPI/numCleanlinessQueueReports/' + userId)
+    fetch(buildGeoJsonUrl("numCleanlinessQueueReports/" + userId))
         .then(function (response) {
             if (!response.ok) {
                 throw new Error("Server error: " + response.status);
@@ -523,26 +632,24 @@ function getNumCleanlinessQueueReports() {
             return response.json();
         })
         .then(function (data) {
-            console.log("Report count response:", data);
-
             if (data && data.array_to_json && data.array_to_json.length > 0) {
                 alert("You have submitted " + data.array_to_json[0].num_reports + " reports.");
             }
         })
-        .catch(function (error) {
-            console.error("Error getting report count:", error);
+        .catch(function () {
+            return;
         });
 }
 
 /**
- * Get user ranking by number of reports
+ * Get the current user's ranking.
  */
 function getUserRanking() {
     if (!userId) {
         return;
     }
 
-    fetch(apiBase + '/api/geojsonAPI/userCleanlinessQueueRanking/' + userId)
+    fetch(buildGeoJsonUrl("userCleanlinessQueueRanking/" + userId))
         .then(function (response) {
             if (!response.ok) {
                 throw new Error("Server error: " + response.status);
@@ -550,8 +657,6 @@ function getUserRanking() {
             return response.json();
         })
         .then(function (data) {
-            console.log("Ranking response:", data);
-
             if (data && data.array_to_json && data.array_to_json.length > 0) {
                 alert("Your current ranking is: " + data.array_to_json[0].rank);
             } else if (data && data.features && data.features.length > 0 && data.features[0].properties) {
@@ -560,14 +665,13 @@ function getUserRanking() {
                 alert("No ranking information available yet.");
             }
         })
-        .catch(function (error) {
-            console.error("Error getting ranking:", error);
+        .catch(function () {
             alert("Error getting user ranking.");
         });
 }
 
 /**
- * Get five closest hospitals
+ * Get the five closest hospitals to the current user location.
  */
 function getClosestHospitals() {
     if (!currentUserLatLng) {
@@ -580,7 +684,7 @@ function getClosestHospitals() {
 
     showOnlyReportingLayer();
 
-    fetch(apiBase + '/api/geojsonAPI/fiveClosestHospitals/' + latitude + '/' + longitude)
+    fetch(buildGeoJsonUrl("fiveClosestHospitals/" + latitude + "/" + longitude))
         .then(function (response) {
             if (!response.ok) {
                 throw new Error("Server error: " + response.status);
@@ -593,7 +697,7 @@ function getClosestHospitals() {
                 return;
             }
 
-            const geojsonLayer = L.geoJSON(data, {
+            const geoJsonLayer = L.geoJSON(data, {
                 onEachFeature: function (feature, layer) {
                     const props = feature.properties || {};
                     let popupContent = "<div style='min-width:200px;'>";
@@ -609,35 +713,33 @@ function getClosestHospitals() {
                 }
             });
 
-            reportingLayer.addLayer(geojsonLayer);
+            reportingLayer.addLayer(geoJsonLayer);
 
             if (!mymap.hasLayer(reportingLayer)) {
                 reportingLayer.addTo(mymap);
             }
 
             try {
-                mymap.fitBounds(geojsonLayer.getBounds(), { padding: [20, 20] });
+                mymap.fitBounds(geoJsonLayer.getBounds(), { padding: [20, 20] });
             } catch (e) {
-                console.log("Could not fit bounds:", e);
+                return;
             }
         })
-        .catch(function (error) {
-            console.error("Error loading closest hospitals:", error);
+        .catch(function () {
             alert("Error loading closest hospitals.");
         });
 }
 
 /**
- * Remove closest hospitals layer and restore default layer
+ * Remove the closest hospitals layer and restore the default layer.
  */
 function removeClosestHospitals() {
     reportingLayer.clearLayers();
     showOnlyDefaultLayer();
-    console.log("Closest hospitals layer removed");
 }
 
 /**
- * Get hospitals with unknown queue length for current user
+ * Get hospitals with unknown queue length for the current user.
  */
 function getUnknownQueueHospitals() {
     if (!userId) {
@@ -646,7 +748,7 @@ function getUnknownQueueHospitals() {
 
     showOnlyReportingLayer();
 
-    fetch(apiBase + '/api/geojsonAPI/hospitalsQueueLengthUnknown/' + userId)
+    fetch(buildGeoJsonUrl("hospitalsQueueLengthUnknown/" + userId))
         .then(function (response) {
             if (!response.ok) {
                 throw new Error("Server error: " + response.status);
@@ -659,7 +761,7 @@ function getUnknownQueueHospitals() {
                 return;
             }
 
-            const geojsonLayer = L.geoJSON(data, {
+            const geoJsonLayer = L.geoJSON(data, {
                 pointToLayer: function (feature, latlng) {
                     return L.marker(latlng);
                 },
@@ -678,38 +780,36 @@ function getUnknownQueueHospitals() {
                 }
             });
 
-            reportingLayer.addLayer(geojsonLayer);
+            reportingLayer.addLayer(geoJsonLayer);
 
             if (!mymap.hasLayer(reportingLayer)) {
                 reportingLayer.addTo(mymap);
             }
 
             try {
-                mymap.fitBounds(geojsonLayer.getBounds(), { padding: [20, 20] });
+                mymap.fitBounds(geoJsonLayer.getBounds(), { padding: [20, 20] });
             } catch (e) {
-                console.log("Could not fit bounds:", e);
+                return;
             }
         })
-        .catch(function (error) {
-            console.error("Error loading unknown queue hospitals:", error);
+        .catch(function () {
             alert("Error loading unknown queue hospitals.");
         });
 }
 
 /**
- * Remove unknown queue layer and restore default layer
+ * Remove the unknown queue layer and restore the default layer.
  */
 function removeUnknownQueueHospitals() {
     reportingLayer.clearLayers();
     showOnlyDefaultLayer();
-    console.log("Unknown queue hospitals layer removed");
 }
 
 /**
- * Get bar chart data and render bar chart
+ * Get bar chart data and render the chart.
  */
 function getHospitalQueueBarChartData() {
-    fetch(apiBase + '/api/geojsonAPI/hospitalsByQueueLength')
+    fetch(buildGeoJsonUrl("hospitalsByQueueLength"))
         .then(function (response) {
             if (!response.ok) {
                 throw new Error("Server error: " + response.status);
@@ -717,10 +817,8 @@ function getHospitalQueueBarChartData() {
             return response.json();
         })
         .then(function (data) {
-            console.log("Hospital bar chart data:", data);
-
-            let labels = [];
-            let values = [];
+            const labels = [];
+            const values = [];
 
             if (Array.isArray(data)) {
                 data.forEach(function (item) {
@@ -739,9 +837,6 @@ function getHospitalQueueBarChartData() {
                     values.push(Number(props.num_hospitals) || 0);
                 });
             }
-
-            console.log("Chart labels:", labels);
-            console.log("Chart values:", values);
 
             const canvas = document.getElementById("hospitalQueueChart");
             if (!canvas) {
@@ -776,22 +871,19 @@ function getHospitalQueueBarChartData() {
                 }
             });
 
-            console.log("Bar chart rendered successfully");
-
             const chartContainer = document.getElementById("hospitalQueueChartContainer");
             if (chartContainer) {
                 chartContainer.style.display = "block";
                 chartContainer.scrollIntoView({ behavior: "smooth", block: "start" });
             }
         })
-        .catch(function (error) {
-            console.error("Error loading hospital queue bar chart data:", error);
+        .catch(function () {
             alert("Error loading hospital queue bar chart data.");
         });
 }
 
 /**
- * Close hospital queue chart
+ * Close the hospital queue chart.
  */
 function closeHospitalChart() {
     const chartContainer = document.getElementById("hospitalQueueChartContainer");
@@ -804,6 +896,4 @@ function closeHospitalChart() {
         hospitalQueueChart.destroy();
         hospitalQueueChart = null;
     }
-
-    console.log("Bar chart closed");
 }
