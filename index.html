@@ -2,331 +2,423 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>index</title>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <meta content="" name="keywords">
-    <meta content="" name="description">
+    <title>Hospital Cleanliness and Queue App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Hospital queue and cleanliness crowdsourcing app">
 
-
-
-    
-
-    <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Icon Font Stylesheet -->
+
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
 
-    <!-- Libraries Stylesheet -->
-    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
-    <link href="lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
-
-    <!-- Customized Bootstrap Stylesheet -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Template Stylesheet -->
     <link href="css/style.css" rel="stylesheet">
 
-    <!-- CSS required to style the leaflet map -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
-     integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
-     crossorigin=""/>
+    <link rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+          crossorigin="">
 
+    <style>
+    html, body {
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+    }
 
+    .container-fluid.position-relative.bg-white.p-0 {
+        height: 100vh;
+        overflow: hidden;
+    }
 
-    <!-- JavaScript code that creates the map -->
-     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
-     integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
-     crossorigin=""></script>
+    #wrapper {
+        display: flex;
+        flex-direction: row;
+        height: 100vh;
+        width: 100%;
+        overflow: hidden;
+    }
 
+    .sidebar {
+        width: 240px !important;
+        min-width: 240px !important;
+        max-width: 240px !important;
+        height: 100vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        display: block !important;
+        margin-left: 0 !important;
+        padding-top: 0 !important;
+        position: relative;
+        z-index: 1000;
+    }
 
-<style>
-    body {
-  overflow-y:hidden;
-  overflow-x:hidden; }
+    .sidebar .navbar {
+        padding-top: 8px !important;
+    }
+
+    .sidebar .navbar-brand {
+        margin-bottom: 12px !important;
+    }
+
+    .sidebar .navbar-nav {
+        margin-top: 0 !important;
+    }
+
+    .sidebar .nav-item {
+        margin-bottom: 8px;
+    }
+
+    #mainContent {
+        flex: 1 1 auto;
+        min-width: 0;
+        height: 100vh;
+        overflow: hidden;
+        margin-left: 0 !important;
+        width: auto !important;
+    }
+
+    #mapWrapper {
+        margin-top: 65px;
+        height: calc(100vh - 65px);
+        width: 100%;
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    #mapid {
+        width: 100%;
+        height: 100%;
+        min-width: 0;
+    }
+
+    .dropdown-menu .dropdown-item {
+        cursor: pointer;
+    }
+
+    @media (max-width: 991.98px) {
+        #wrapper {
+            display: flex;
+            flex-direction: row;
+        }
+
+        .sidebar {
+            width: 180px !important;
+            min-width: 180px !important;
+            max-width: 180px !important;
+            margin-left: 0 !important;
+            display: block !important;
+            padding-top: 0 !important;
+        }
+
+        .sidebar .navbar-brand h3 {
+            font-size: 1rem !important;
+        }
+
+        .sidebar .ms-3 h6 {
+            font-size: 0.95rem !important;
+        }
+
+        .sidebar .ms-3 span {
+            font-size: 0.9rem !important;
+        }
+
+        .sidebar .nav-link,
+        .sidebar .dropdown-item {
+            font-size: 0.95rem !important;
+        }
+
+        .sidebar .fa,
+        .sidebar .bi {
+            font-size: 0.95rem !important;
+        }
+
+        .sidebar .d-flex.align-items-center.ms-4.mb-4 {
+            margin-left: 12px !important;
+            margin-bottom: 18px !important;
+        }
+
+        .sidebar .navbar-nav.w-100 {
+            padding-left: 8px;
+            padding-right: 8px;
+        }
+
+        #mainContent {
+            flex: 1 1 auto;
+            min-width: 0;
+            width: auto !important;
+            margin-left: 0 !important;
+        }
+
+        #mapWrapper {
+            width: 100%;
+        }
+
+        #mapid {
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        .sidebar {
+            width: 165px !important;
+            min-width: 165px !important;
+            max-width: 165px !important;
+        }
+
+        .sidebar .navbar-brand {
+            margin-left: 12px !important;
+            margin-right: 12px !important;
+        }
+
+        .sidebar .navbar-brand h3 {
+            font-size: 0.95rem !important;
+        }
+
+        .sidebar .nav-link,
+        .sidebar .dropdown-item {
+            font-size: 0.9rem !important;
+        }
+
+        .sidebar .ms-3 h6 {
+            font-size: 0.9rem !important;
+        }
+
+        .sidebar .ms-3 span {
+            font-size: 0.85rem !important;
+        }
+    }
+	
+	.menu-group-title {
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: #111827;
+    padding: 10px 16px 8px 16px;
+    margin-top: 6px;
+}
+
+.menu-link {
+    display: block;
+    padding: 8px 16px;
+    color: #111827;
+    text-decoration: none;
+    font-size: 0.98rem;
+}
+
+.menu-link:hover {
+    background: #f3f4f6;
+    color: #2563eb;
+}
+
+@media (max-width: 991.98px) {
+    .menu-group-title {
+        font-size: 1rem;
+        padding: 10px 12px 8px 12px;
+    }
+
+    .menu-link {
+        padding: 8px 12px;
+        font-size: 0.94rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .menu-group-title {
+        font-size: 0.95rem;
+    }
+
+    .menu-link {
+        font-size: 0.9rem;
+    }
+}
 </style>
-
-<!-- the following links incorporate the CSS required for custom icon creation -->
-<link rel="stylesheet" href="css/ionicons.min.css">
-<link rel="stylesheet" href="css/leaflet.awesome-markers.css">
-<script src="js/leaflet.awesome-markers.js"></script>
-
 </head>
 
- 
+<body>
+<div class="container-fluid position-relative bg-white p-0">
 
-<body> 
-    <div class="container-fluid position-relative bg-warning p-0">
-        <!-- Spinner Start -->
-        <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
-            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
-                <span class="sr-only">Loading...</span>
-            </div>
+    <div id="spinner"
+         class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="visually-hidden">Loading...</span>
         </div>
-        <!-- Spinner End -->
+    </div>
 
+    <div id="wrapper" class="content d-flex">
 
-        
+        <div class="sidebar pe-4 pb-3 bg-light">
+            <nav class="navbar bg-light navbar-light">
 
-
-        <!-- Content Start -->
-           <div id = "wrapper" class="content d-flex flex-column" >
-        
-            <!-- Navbar Start -->
-            <nav class="navbar bg-light navbar-expand fixed-top py-0 px-4">
-                <a href="#" class="navbar-brand d-flex d-lg-none me-4">
-                    <h2 class="text-primary mb-0"><i class="fa fa-hashtag"></i></h2>
+                <a href="#" class="navbar-brand mx-4 mb-3">
+                    <h3 class="text-primary">
+                        <i class="fa fa-hospital me-2"></i>Hospitals
+                    </h3>
                 </a>
-                <a href="#" class="sidebar-toggler flex-shrink-0">
-                    <i class="fa fa-bars" ></i>
-                </a> 
-                <form class="d-none d-md-flex ms-4">
-                    <input class="form-control border-0" type="search" placeholder="Search" onclick="alert('Placeholder for search');">
-                </form>
-                <div class="navbar-nav align-items-right ms-auto">
+
+                <div class="d-flex align-items-center ms-4 mb-4">
+                    <div class="position-relative">
+                        <img class="rounded-circle" src="img/UCL_Logo.jpg" alt="UCL Logo" style="width: 50px; height: 40px;">
+                    </div>
+                    <div class="ms-3">
+                        <h6 class="mb-0">User Information</h6>
+                        <span id="userIdDisplay">Loading user ID...</span>
+                    </div>
+                </div>
+
+                <div class="navbar-nav w-100">
+
+    <hr>
+
+    <!-- Large screen -->
+    <div class="d-none d-md-block">
+        <div class="menu-group-title">
+            <i class="fa fa-desktop me-2"></i>Hospital Mapping
+        </div>
+
+        <a class="menu-link" href="#" onclick="enableHospitalCreation(); return false;">
+            Add New Hospital
+        </a>
+        <a class="menu-link" href="#" onclick="showDefaultHospitalLayer(); return false;">
+            Show My Hospitals
+        </a>
+        <a class="menu-link" href="#" onclick="showHospitalQueueBarChart(); return false;">
+            Queue Bar Graph
+        </a>
+    </div>
+
+    <!-- Small screen -->
+    <div class="d-md-none">
+        <div class="menu-group-title">
+            <i class="fa fa-mobile-alt me-2"></i>Queue App
+        </div>
+
+        <a class="menu-link" href="#" onclick="showDefaultHospitalLayer(); return false;">
+            Show My Hospitals
+        </a>
+        <a class="menu-link" href="#" onclick="showUserRanking(); return false;">
+            User Ranking
+        </a>
+        <a class="menu-link" href="#" onclick="showClosestHospitalsLayer(); return false;">
+            Closest Hospitals
+        </a>
+        <a class="menu-link" href="#" onclick="removeClosestHospitalsLayer(); return false;">
+            Remove Closest Hospitals
+        </a>
+        <a class="menu-link" href="#" onclick="showUnknownQueueLayer(); return false;">
+            Unknown Queue
+        </a>
+        <a class="menu-link" href="#" onclick="removeUnknownQueueLayer(); return false;">
+            Remove Unknown Queue
+        </a>
+    </div>
+
+    <div class="mt-4">
+        <div class="menu-group-title">
+            <i class="fa fa-layer-group me-2"></i>Map Controls
+        </div>
+
+        <a class="menu-link" href="#" onclick="zoomToUserLocation(); return false;">
+            Zoom to Location
+        </a>
+        <a class="menu-link" href="#" onclick="reloadMapData(); return false;">
+            Reload Data
+        </a>
+    </div>
+
+</div>
+                    </div>
+
                     <div class="nav-item dropdown">
                         <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                            <i class="fa fa-bell me-lg-2"></i>
-                            <span class="d-none d-lg-inline-flex">Help Menu</span>
+                            <i class="fa fa-layer-group me-2"></i>Map Controls
                         </a>
-                        <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
-                            <a href="#" class="dropdown-item">
-                                <h6 class="fw-normal mb-0">Help 1</h6>
-                                <small>Answer Questions</small>
+
+                        <div class="dropdown-menu bg-light border-0">
+                            <a class="dropdown-item" href="#" onclick="zoomToUserLocation(); return false;">
+                                Zoom to Location
                             </a>
-                            <hr class="dropdown-divider">
-                            <a href="#" class="dropdown-item">
-                                <h6 class="fw-normal mb-0">Help 2</h6>
-                                <small>Add Quiz Points</small>
+                            <a class="dropdown-item" href="#" onclick="reloadMapData(); return false;">
+                                Reload Data
                             </a>
                         </div>
                     </div>
 
-         <!-- Bootstrap MENU -->           
-        <div class="nav-item dropdown">
-            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>Show Data</a>            
-            <div class="dropdown-menu bg-transparent border-0">
-              <a class="dropdown-item" href="#" onclick="showHardCodedData();">Show Hardcoded Data</a>
-
-              <!-- a new menu item under the Show Data menu in the index.html file. Call the new menu item Show Earthquakes-->
-              <a class="dropdown-item" href="#" onclick="showEarthquakes();">Show Earthquakes</a>
-
-              <!-- Add another custom menu item under the Show Data menu, called Show Styled Earthquakes-->
-              <a class="dropdown-item" href="#" onclick="showStyledEarthquakes();">Show Styled Earthquakes</a>
-
-              <!--  Add a new menu item under the Show Data menu in the index.html file. Call the new menu item Show BusStops - the new menu item should call the showBusStops function -->
-              <a class="dropdown-item" href="#" onclick="showBusStops();">Show BusStops</a>
-
-
-              <!-- Add a new menu item under the Show Data menu in the index.html file. Call the new menu item Show BusStops Styled - the new menu item should call the showBusStopsStyled function -->
-              <a class="dropdown-item" href="#" onclick="showBusStopsStyled();">Show BusStops Styled</a>
-
-
-              <!-- Add a new menu item under the Show Data menu in the index.html file. Call the new menu item Remove BusStops - the new menu item should call the removeBusStops function-->
-              <a class="dropdown-item" href="#" onclick="removeBusStops();">removeBusStops</a>
-
-
-
-              <!-- Add a new menu item under the Show Data menu in the index.html file. Call the new menu item Show Ethernet Styled -->
-              <a class="dropdown-item" href="#" onclick="showEthernetStyled();">Show Ethernet Styled</a>
-
-
-              <!-- Add a new menu item under the Show Data menu in the index.html file. Call the new menu item Remove Ethernet-->
-              <a class="dropdown-item" href="#" onclick=" removeEthernet();">Remove Ethernet</a>
-
-
-            </div>
-
-        </div>
-
-
-<!-- Bootstrap MENU2 -->
-        <div class="nav-item dropdown">
-            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>Show Hardcoded GeoJSON</a>            
-            <div class="dropdown-menu bg-transparent border-0">
-              <a class="dropdown-item" href="#" onclick="showHardCodedGeoJSON();">Show Hardcoded Data</a>
-            </div>
-        </div>
-
-
                 </div>
-
-            </nav><!-- Navbar End -->
-
-<!-- Sidebar Start -->
-        <div class="sidebar pe-4 pb-3 bg-light">
-            <nav class="navbar bg-light navbar-light">
-                <a href="#" class="navbar-brand mx-4 mb-3">
-                    <h3 class="text-primary"><i class="fa fa-hashtag me-2"></i></h3>
-                </a>
-              <a href="#" class="sidebar-toggler flex-shrink-0 d-lg-none">
-                    <i class="fa fa-bars"></i>
-             </a>
-
-                
-    <!-- d-flex creates a flexbox container, which is the holder for other flexible items
-    align-items-center puts everything in this box i the middle
-    ms-4 gives a left margin of 4
-    mb-4 gives a bottom margin of 4
-
-    flex is used to align elements in a container even if we don't know the sizes of the elements
--->
- <div class="d-flex align-items-center ms-4 mb-4">
-
-                    <!-- any position informaiton you provide in this div will be relative to the outer div -i.e. the 0,0 is the topi left of this div -->
-                    <div class="position-relative">
-
-
-                        <!-- the orange circle image -->
-                        <img class="rounded-circle" src="img/UCL_Logo.jpg" alt="" style="width: 50px; height: 40px;">
-
-
-                        <!--the samll green circle with a white border 
-                            bg is background
-                            bg-success refers to the green colour see here: https://getbootstrap.com/docs/5.0/utilities/background/-->
-                        <div class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1"></div>
-
-                    </div> <!-- the end of the position relative div -->
-
-                    <div class="ms-3"> <!-- set a left margin of 3 -->
-                        <h6 class="mb-0"><b>ucesia3@ucl.ac.uk</b><br> <!-- a standard html header h6 level with a bottom margin of 0  - bootstrap usually adds a margin so mb-0 removes this margin -->
-                        <!-- if your UCL username doesn't appear this is because the d-flex container has a mininimum width below which it disappears - this is responsive mode design
-                        you can type your UCL username in block capitals to solve this issue -->
-
-                        <span><b>Izzaldeensheriff</b></span></h6>
-                    </div> <!-- closing the class ms-3 div-->
-                </div> <!-- closing the d-flex div -->
             </nav>
-        <div class="navbar-nav">
-                <!-- Divider -->
-                <hr class="sidebar-divider">
-                <ul class="nav flex-column">
-
-                <li class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Menu 1</a>            
-                    <div class="dropdown-menu">
-                      <a class="dropdown-item" href="#" onclick="showDialog('layerToLoad');">Menu 2</a>
-                      <a class="dropdown-item" onclick="menu3();">Menu 3</a>
-                    </div>
-                  </li>
-
-                <li class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Menu 4</a>            
-                    <div class="dropdown-menu">
-                      <a class="dropdown-item"  onclick="showDialog('thumbnail');">Menu 5</a>
-                      <a class="dropdown-item"  onclick="showDialog('allLayers');">Menu 6</a>
-                    </div>
-                  </li>
-                <li class="nav-item dropdown">   
-                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Menu 7</a>            
-                    <div class="dropdown-menu">
-                      <a class="dropdown-item"   onclick="menu8();" >Menu 8</a>
-                      <a class="dropdown-item"   onclick="menu9();" >Menu 9</a>
-                    </div>
-                  </li>
-				  <li class="nav-item dropdown">   
-                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Menu 10</a>            
-                    <div class="dropdown-menu">
-                      <a class="dropdown-item"   onclick="menu5();" >Menu 11</a>
-                      <a class="dropdown-item"   onclick="menu6();" >Menu 12</a>
-                    </div>
-                  </li>
-              </ul>
-
-  <div class="nav-item dropdown d-sm-down">   
-            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>Screen Size Check</a>            
-            <div class="dropdown-menu bg-transparent border-0">
-
-            <!-- only display when screen width is medium -->
-            <!-- default with block is that everything above is also visible so need to use lg-none to stop that -->
-            <a class="dropdown-item d-none d-md-block d-lg-none" href="#" onclick="alert('d-none d-md-block d-lg-none')">Only medium</a>
-
-            <!-- only display when screen width is medium or below --> 
-            <!-- when you use none, everything below is VISIBLE, everything above is not -->      
-            <a class="dropdown-item d-lg-none" href="#" onclick="alert('d-lg-none')">Medium or below</a>
-
-            <!-- only display when screen width is medium or above -->      
-            <!-- d-xs-none does not exist, use d-none --> 
-            <a class="dropdown-item d-sm-none d-none d-md-block" href="#" onclick="alert('d-sm-none d-none d-md-block')">Medium or above</a>
-
-            <!-- only display when screen width is NOT medium --> 
-            <!-- default when using none is that everything below is visible, everything above is not
-            so in this case you also need to say specifically that everything above is visible using d-lg-block -->      
-            <a class="dropdown-item d-md-none d-lg-block" href="#" onclick="alert('d-md-none d-lg-block')">Not medium</a>
         </div>
-    </div> <!-- end of the screen size check menu option-->
 
-            
-        </div> <!--navbar-nav end -->
+        <div id="mainContent" class="content">
+
+            <nav class="navbar bg-light navbar-expand fixed-top py-0 px-4">
+                <span class="nav-link">
+                    <i class="fa fa-map-marker-alt me-2"></i>
+                    Hospital Cleanliness and Queue App
+                </span>
+            </nav>
+
+            <div class="container-fluid px-0">
+                <div class="row g-0">
+                    <div class="col">
+                        <div id="mapWrapper">
+                            <div id="mapid"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container-fluid pt-3 px-3" id="hospitalQueueChartContainer" style="display:none;">
+                <div class="bg-light rounded p-4 position-relative">
+                    <button type="button"
+                            class="btn btn-sm btn-danger position-absolute"
+                            style="top: 10px; right: 10px;"
+                            onclick="closeHospitalChart()">
+                        Close
+                    </button>
+
+                    <h6 class="mb-4">Hospital Queue Length Bar Chart</h6>
+
+                    <div style="position: relative; height: 400px;">
+                        <canvas id="hospitalQueueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </div>
-        <!-- Sidebar End -->
-        
-<div class="container-fluid px-0">
-  <div class="row d-flex">
-    <div class="col d-flex">
-                <!-- mapwrapper start -->
-                <div id="mapWrapper" class="col vh-100 collapse show bg-warning" aria-expanded="true" role="region" style="margin-top:65px;z-index:0;">
-                        <div  id="mapid"  class=" bg-danger" style="height:calc(100% - 65px);">
-                        </div> <!-- map id -->
-                </div> <!-- mapwrapper end -->
+</div>
 
-                <div id="cesiumWrapper" class="col vh-100 collapse hide" aria-expanded="true" role="region"  style="margin-top:65px;z-index:0;">
-                    <div  id="cesium"  class=" bg-danger" style="height:calc(100% - 65px);">
-                    </div> <!-- cesium id -->
-                </div> <!-- cesium wrapper -->
+<div data-w3-include-html="dialogs/hospitalForm.html"></div>
+<div data-w3-include-html="dialogs/queueCleanlinessForm.html"></div>
 
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<script src="js/includeDialogs.js"></script>
+<script src="js/menu.js"></script>
+<script src="js/map.js"></script>
+<script src="js/utilities.js"></script>
 
-                <!-- asset data wrapper wrapper wrapper -->
-                <div id="assetDataWrapperWrapper" class="col vh-100 collapse hide"  role="region" aria-expanded="true" style="background-color:lightgray; margin-top:65px;margin-bottom:100px;z-index:0;">
-                </div>
-                 <!-- asset data wrapper wrapper wrapper -->
+<script>
+    includeHTML();
 
-                 <!-- map ability wrapper wrapper -->
-                <div id="mapAbilityWrapper" role="region" class="col vh-100 collapse hide" aria-expanded="true" style="background-color:white; margin-top:65px;margin-bottom:100px;z-index:0;">
-                </div>
-                 <!-- map ability wrapper wrapper -->
-        </div> <!-- col d-flex -->
-    </div> <!-- row d-flex -->
-</div> <!-- container-fluid-->
+    function hideSpinner() {
+        const spinner = document.getElementById("spinner");
+        if (spinner) {
+            spinner.classList.remove("show");
+            spinner.style.display = "none";
+        }
+    }
 
+    window.addEventListener("load", function () {
+        setTimeout(hideSpinner, 1000);
+    });
 
+    setTimeout(hideSpinner, 2000);
+</script>
 
-</div> <!-- end of the content wrapper -->
-</div> <!-- container fluid that wraps everything -->
-
-
-
-    <!-- JavaScript Libraries -->
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="lib/chart/chart.min.js"></script>
-    <script src="lib/easing/easing.min.js"></script>
-    <script src="lib/waypoints/waypoints.min.js"></script>
-    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
-    <script src="lib/tempusdominus/js/moment.min.js"></script>
-    <script src="lib/tempusdominus/js/moment-timezone.min.js"></script>
-    <script src="lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
-
-    <!-- Template Javascript -->
-    <script src="js/bootstrapTemplate.js"></script>
-    <script src="js/menu.js"></script>
-    <script src="js/map.js"></script>
-    <script src="js/includeDialogs.js"></script>
-    <script src="js/utilities.js"></script>
-    <script src="js/geoJSONShapes.js"></script>
-    <script src="js/mapUtilities.js"></script>
-    <script src="js/busstops.js"></script>
-    <script src="js/ethernet.js"></script>
-
-    
-
-
- <script src="js/includeDialogs.js"></script>
- <div data-w3-include-html="./dialogs/dialogs.txt"></div>
- <script>includeHTML();</script>
 </body>
 </html>
