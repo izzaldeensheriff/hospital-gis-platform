@@ -41,21 +41,23 @@
         }
 
         .sidebar {
-    width: 210px !important;
-    min-width: 210px !important;
-    max-width: 210px !important;
+            width: 210px !important;
+            min-width: 210px !important;
+            max-width: 210px !important;
             height: 100vh;
             overflow-y: auto;
             overflow-x: hidden;
             display: block !important;
             margin-left: 0 !important;
             padding-top: 0 !important;
+            padding-right: 0 !important;
             position: relative;
             z-index: 1000;
         }
 
         .sidebar .navbar {
             padding-top: 8px !important;
+            padding-right: 0 !important;
         }
 
         .sidebar .navbar-brand {
@@ -73,6 +75,7 @@
             overflow: hidden;
             margin-left: 0 !important;
             width: auto !important;
+            position: relative;
         }
 
         #mapWrapper {
@@ -110,6 +113,10 @@
             color: #2563eb;
         }
 
+        .leaflet-control-layers {
+            z-index: 1001 !important;
+        }
+
         @media (max-width: 991.98px) {
             #wrapper {
                 display: flex;
@@ -123,6 +130,7 @@
                 margin-left: 0 !important;
                 display: block !important;
                 padding-top: 0 !important;
+                padding-right: 0 !important;
             }
 
             .sidebar .navbar-brand h3 {
@@ -206,7 +214,6 @@
                 font-size: 0.9rem;
             }
         }
-		
     </style>
 </head>
 
@@ -222,7 +229,7 @@
 
     <div id="wrapper" class="content d-flex">
 
-        <div class="sidebar pe-4 pb-3 bg-light">
+        <div class="sidebar pb-3 bg-light">
             <nav class="navbar bg-light navbar-light">
 
                 <a href="#" class="navbar-brand mx-4 mb-3">
@@ -244,7 +251,6 @@
                 <div class="navbar-nav w-100">
                     <hr>
 
-                    <!-- Large screen -->
                     <div class="d-none d-md-block">
                         <div class="menu-group-title">
                             <i class="fa fa-desktop me-2"></i>Hospital Mapping
@@ -261,7 +267,6 @@
                         </a>
                     </div>
 
-                    <!-- Small screen -->
                     <div class="d-md-none">
                         <div class="menu-group-title">
                             <i class="fa fa-mobile-alt me-2"></i>Queue App
@@ -366,10 +371,16 @@
             spinner.classList.remove("show");
             spinner.style.display = "none";
         }
+
+        if (typeof refreshMapSize === "function") {
+            setTimeout(refreshMapSize, 300);
+            setTimeout(refreshMapSize, 800);
+            setTimeout(refreshMapSize, 1500);
+        }
     }
 
     window.addEventListener("load", function () {
-        setTimeout(hideSpinner, 1000);
+        setTimeout(hideSpinner, 600);
     });
 
     setTimeout(hideSpinner, 2000);
