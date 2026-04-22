@@ -872,6 +872,11 @@ function getHospitalQueueBarChartData() {
                 chartContainer.style.display = "block";
                 chartContainer.scrollIntoView({ behavior: "smooth", block: "start" });
             }
+
+            if (typeof refreshMapSize === "function") {
+                setTimeout(refreshMapSize, 200);
+                setTimeout(refreshMapSize, 700);
+            }
         })
         .catch(function () {
             alert("Error loading hospital queue bar chart data.");
@@ -891,5 +896,10 @@ function closeHospitalChart() {
     if (hospitalQueueChart) {
         hospitalQueueChart.destroy();
         hospitalQueueChart = null;
+    }
+
+    if (typeof refreshMapSize === "function") {
+        setTimeout(refreshMapSize, 200);
+        setTimeout(refreshMapSize, 700);
     }
 }
