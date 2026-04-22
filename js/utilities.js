@@ -883,6 +883,8 @@ function getHospitalQueueBarChartData() {
         });
 }
 
+
+
 /**
  * Close the hospital queue chart.
  */
@@ -903,3 +905,6 @@ function closeHospitalChart() {
         setTimeout(refreshMapSize, 700);
     }
 }
+
+
+
