@@ -44,6 +44,10 @@ let selectedHospitalLatLng = null;
  * Whether hospital creation mode is enabled.
  */
 let hospitalCreationEnabled = false;
+/**
+ * Tracks whether the screen was previously mobile width.
+ */
+let wasMobileWidth = window.innerWidth < 768;
 
 /**
  * Whether the initial mobile auto-centre has already happened.
@@ -212,9 +216,6 @@ function reloadMapData() {
 /**
  * Refresh map size after layout changes.
  */
-/**
- * Refresh map size after layout changes.
- */
 function refreshMapSize() {
     if (!mymap) {
         return;
@@ -223,18 +224,18 @@ function refreshMapSize() {
     setTimeout(function () {
         mymap.invalidateSize(true);
 
-        if (
-            typeof isDefaultLayerActive === "function" &&
-            isDefaultLayerActive() &&
-            defaultHospitalLayer &&
-            defaultHospitalLayer.getLayers().length > 0
-        ) {
-            try {
+        try {
+            if (defaultHospitalLayer && defaultHospitalLayer.getLayers().length > 0) {
                 mymap.fitBounds(defaultHospitalLayer.getBounds(), { padding: [20, 20] });
                 return;
-            } catch (error) {
-                // fallback below
             }
+
+            if (reportingLayer && reportingLayer.getLayers().length > 0) {
+                mymap.fitBounds(reportingLayer.getBounds(), { padding: [20, 20] });
+                return;
+            }
+        } catch (error) {
+            // fallback below
         }
 
         mymap.setView(mymap.getCenter(), mymap.getZoom());
@@ -244,5 +245,31 @@ function refreshMapSize() {
  * Listen for window resize events.
  */
 window.addEventListener("resize", function () {
+    const isMobileWidth = window.innerWidth < 768;
+
     refreshMapSize();
+
+    if (isMobileWidth !== wasMobileWidth) {
+        setTimeout(function () {
+            try {
+                if (defaultHospitalLayer && defaultHospitalLayer.getLayers().length > 0) {
+                    mymap.fitBounds(defaultHospitalLayer.getBounds(), { padding: [20, 20] });
+                    wasMobileWidth = isMobileWidth;
+                    return;
+                }
+
+                if (reportingLayer && reportingLayer.getLayers().length > 0) {
+                    mymap.fitBounds(reportingLayer.getBounds(), { padding: [20, 20] });
+                    wasMobileWidth = isMobileWidth;
+                    return;
+                }
+            } catch (error) {
+                // do nothing
+            }
+
+            wasMobileWidth = isMobileWidth;
+        }, 400);
+    } else {
+        wasMobileWidth = isMobileWidth;
+    }
 });
