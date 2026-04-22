@@ -31,6 +31,12 @@ let userHospitalFeatures = [];
 let lastProximityHospitalId = null;
 
 /**
+ * Current map mode.
+ * Values: "default" or "reporting"
+ */
+let currentMapMode = "default";
+
+/**
  * Base URL for API requests.
  */
 const apiBase = window.location.origin;
@@ -166,6 +172,8 @@ function buildQueueLengthOptions() {
  * Restore only the default user hospital layer.
  */
 function showOnlyDefaultLayer() {
+    currentMapMode = "default";
+
     reportingLayer.clearLayers();
 
     if (mymap.hasLayer(reportingLayer)) {
@@ -183,6 +191,8 @@ function showOnlyDefaultLayer() {
  * Switch to reporting layer mode only.
  */
 function showOnlyReportingLayer() {
+    currentMapMode = "reporting";
+
     defaultHospitalLayer.clearLayers();
 
     if (mymap.hasLayer(defaultHospitalLayer)) {
@@ -200,18 +210,10 @@ function showOnlyReportingLayer() {
 
 /**
  * Check whether the default hospital layer is currently active.
- * Proximity alerts are only active on small screens with the default layer.
- * @returns {boolean} True if default layer is active.
+ * @returns {boolean} True if default layer is active on small screen.
  */
 function isDefaultLayerActive() {
-    if (!mymap) {
-        return false;
-    }
-
-    const reportingLayerEmpty = reportingLayer.getLayers().length === 0;
-    const isSmallScreen = window.innerWidth < 768;
-
-    return isSmallScreen && mymap.hasLayer(defaultHospitalLayer) && reportingLayerEmpty;
+    return window.innerWidth < 768 && currentMapMode === "default";
 }
 
 /**
