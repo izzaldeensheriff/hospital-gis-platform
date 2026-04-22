@@ -1,14 +1,21 @@
 "use strict";
 
-function showDialog(dialogName) {
-    const dialog = document.getElementById(dialogName);
+/**
+ * Open a dialog by element ID.
+ * @param {string} dialogId - The dialog element ID.
+ */
+function showDialog(dialogId) {
+    const dialog = document.getElementById(dialogId);
     if (!dialog) {
-        console.log("Dialog not found:", dialogName);
         return;
     }
     dialog.showModal();
 }
 
+/**
+ * Close a dialog element.
+ * @param {HTMLDialogElement} dialog - The dialog element.
+ */
 function closeDialog(dialog) {
     if (!dialog) {
         return;
@@ -16,6 +23,11 @@ function closeDialog(dialog) {
     dialog.close();
 }
 
+/**
+ * Collect values from a dialog form.
+ * @param {HTMLDialogElement} dialog - Dialog containing form fields.
+ * @returns {Object} Form values.
+ */
 function getDialogFormValues(dialog) {
     const formValues = {};
     const elements = dialog.querySelectorAll("input, select, textarea");
@@ -39,13 +51,16 @@ function getDialogFormValues(dialog) {
     return formValues;
 }
 
+/**
+ * Save a dialog by routing the data to the correct handler.
+ * @param {HTMLDialogElement} dialog - The dialog being saved.
+ */
 function saveDialog(dialog) {
     if (!dialog) {
         return;
     }
 
     const formValues = getDialogFormValues(dialog);
-    console.log("Saving dialog:", dialog.id, formValues);
 
     if (dialog.id === "hospitalFormDialog") {
         if (typeof saveNewHospital === "function") {
@@ -64,64 +79,65 @@ function saveDialog(dialog) {
     dialog.close();
 }
 
-function loadUserHospitals() {
-    if (typeof getUserHospitals === "function") {
-        getUserHospitals();
-    } else {
-        console.log("getUserHospitals is not available");
-    }
-}
-
-function loadDefaultHospitalLayer() {
+/**
+ * Show the default hospital layer.
+ */
+function showDefaultHospitalLayer() {
     if (typeof showOnlyDefaultLayer === "function") {
         showOnlyDefaultLayer();
-    } else if (typeof getUserHospitals === "function") {
-        getUserHospitals();
     }
 }
 
+/**
+ * Show the user ranking.
+ */
 function showUserRanking() {
     if (typeof getUserRanking === "function") {
         getUserRanking();
-    } else {
-        console.log("getUserRanking is not available");
     }
 }
 
+/**
+ * Show the closest hospitals layer.
+ */
 function showClosestHospitalsLayer() {
     if (typeof getClosestHospitals === "function") {
         getClosestHospitals();
-    } else {
-        console.log("getClosestHospitals is not available");
     }
 }
 
-function showUnknownQueueLayer() {
-    if (typeof getUnknownQueueHospitals === "function") {
-        getUnknownQueueHospitals();
-    } else {
-        console.log("getUnknownQueueHospitals is not available");
-    }
-}
-
-function showHospitalBarChart() {
-    if (typeof getHospitalQueueBarChartData === "function") {
-        getHospitalQueueBarChartData();
-    } else {
-        console.log("getHospitalQueueBarChartData is not available");
-    }
-}
+/**
+ * Remove the closest hospitals layer.
+ */
 function removeClosestHospitalsLayer() {
     if (typeof removeClosestHospitals === "function") {
         removeClosestHospitals();
-    } else {
-        console.log("removeClosestHospitals not found");
     }
 }
+
+/**
+ * Show the unknown queue layer.
+ */
+function showUnknownQueueLayer() {
+    if (typeof getUnknownQueueHospitals === "function") {
+        getUnknownQueueHospitals();
+    }
+}
+
+/**
+ * Remove the unknown queue layer.
+ */
 function removeUnknownQueueLayer() {
     if (typeof removeUnknownQueueHospitals === "function") {
         removeUnknownQueueHospitals();
-    } else {
-        console.log("removeUnknownQueueHospitals not found");
+    }
+}
+
+/**
+ * Show the hospital queue bar chart.
+ */
+function showHospitalQueueBarChart() {
+    if (typeof getHospitalQueueBarChartData === "function") {
+        getHospitalQueueBarChartData();
     }
 }
