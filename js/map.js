@@ -67,7 +67,16 @@ function loadMap() {
 
     defaultHospitalLayer.addTo(mymap);
 
-    layerControl = L.control.layers(baseMaps, overlayMaps).addTo(mymap);
+    if (layerControl) {
+        mymap.removeControl(layerControl);
+    }
+
+    layerControl = L.control.layers(baseMaps, overlayMaps, {
+        collapsed: true,
+        position: "topright"
+    });
+
+    layerControl.addTo(mymap);
 
     mymap.on("click", handleMapClick);
 
@@ -206,6 +215,14 @@ function refreshMapSize() {
     setTimeout(function () {
         mymap.invalidateSize(true);
         mymap.setView(mymap.getCenter(), mymap.getZoom());
+
+        if (layerControl) {
+            const controlContainer = layerControl.getContainer();
+            if (controlContainer) {
+                controlContainer.style.display = "block";
+                controlContainer.style.visibility = "visible";
+            }
+        }
     }, 300);
 }
 
