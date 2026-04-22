@@ -46,6 +46,11 @@ let selectedHospitalLatLng = null;
 let hospitalCreationEnabled = false;
 
 /**
+ * Whether the initial mobile auto-centre has already happened.
+ */
+let hasAutoCenteredOnMobile = false;
+
+/**
  * Load the map.
  */
 function loadMap() {
@@ -86,6 +91,9 @@ function loadMap() {
 /**
  * Track browser user location continuously.
  */
+/**
+ * Track browser user location continuously.
+ */
 function getUserLocation() {
     if (!navigator.geolocation) {
         return;
@@ -115,10 +123,10 @@ function getUserLocation() {
 
             if (
                 window.innerWidth < 768 &&
-                typeof isDefaultLayerActive === "function" &&
-                isDefaultLayerActive()
+                !hasAutoCenteredOnMobile
             ) {
                 mymap.setView(currentLatLngObject, 16);
+                hasAutoCenteredOnMobile = true;
             }
 
             if (typeof checkProximityAlert === "function") {
@@ -135,7 +143,6 @@ function getUserLocation() {
         }
     );
 }
-
 /**
  * Enable hospital creation mode.
  */
