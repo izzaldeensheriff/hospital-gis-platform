@@ -212,6 +212,9 @@ function reloadMapData() {
 /**
  * Refresh map size after layout changes.
  */
+/**
+ * Refresh map size after layout changes.
+ */
 function refreshMapSize() {
     if (!mymap) {
         return;
@@ -219,11 +222,27 @@ function refreshMapSize() {
 
     setTimeout(function () {
         mymap.invalidateSize(true);
+
+        if (
+            typeof isDefaultLayerActive === "function" &&
+            isDefaultLayerActive() &&
+            defaultHospitalLayer &&
+            defaultHospitalLayer.getLayers().length > 0
+        ) {
+            try {
+                mymap.fitBounds(defaultHospitalLayer.getBounds(), { padding: [20, 20] });
+                return;
+            } catch (error) {
+                // fallback below
+            }
+        }
+
         mymap.setView(mymap.getCenter(), mymap.getZoom());
     }, 300);
 }
-
 /**
  * Listen for window resize events.
  */
-window.addEventListener("resize", refreshMapSize);
+window.addEventListener("resize", function () {
+    refreshMapSize();
+});
