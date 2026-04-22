@@ -79,9 +79,6 @@ function loadMap() {
 /**
  * Track browser user location continuously.
  */
-/**
- * Track browser user location continuously
- */
 function getUserLocation() {
     if (!navigator.geolocation) {
         return;
@@ -190,11 +187,11 @@ function zoomToUserLocation() {
 }
 
 /**
- * Reload map data.
+ * Reload the default hospital layer.
  */
 function reloadMapData() {
-    if (typeof showDefaultHospitalLayer === "function") {
-        showDefaultHospitalLayer();
+    if (typeof showOnlyDefaultLayer === "function") {
+        showOnlyDefaultLayer();
     }
 }
 
@@ -212,4 +209,7 @@ function refreshMapSize() {
     }, 300);
 }
 
+/**
+ * Listen for window resize events.
+ */
 window.addEventListener("resize", refreshMapSize);
