@@ -165,9 +165,6 @@ function buildQueueLengthOptions() {
 /**
  * Restore only the default user hospital layer.
  */
-/**
- * Restore only the default user hospital layer
- */
 function showOnlyDefaultLayer() {
     reportingLayer.clearLayers();
 
@@ -184,9 +181,6 @@ function showOnlyDefaultLayer() {
 
 /**
  * Switch to reporting layer mode only.
- */
-/**
- * Switch to reporting layer mode only
  */
 function showOnlyReportingLayer() {
     defaultHospitalLayer.clearLayers();
