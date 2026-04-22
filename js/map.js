@@ -1,104 +1,139 @@
 "use strict";
 
 /**
- * Leaflet map
+ * Leaflet map instance.
  */
 let mymap;
 
 /**
- * Layer control
+ * Leaflet layer control.
  */
 let layerControl;
 
 /**
- * Main hospital layer
+ * Main hospital layer.
  */
 let defaultHospitalLayer = L.featureGroup();
 
 /**
- * Reporting / analysis layer
+ * Reporting / analysis layer.
  */
 let reportingLayer = L.featureGroup();
 
 /**
- * Current user location
+ * Current user location as [lat, lng].
  */
 let currentUserLatLng = null;
 
 /**
- * Selected location for new hospital
+ * Current user location marker.
+ */
+let currentUserLocationMarker = null;
+
+/**
+ * Last five user positions.
+ */
+let lastFivePositions = [];
+
+/**
+ * Selected location for new hospital.
  */
 let selectedHospitalLatLng = null;
 
 /**
- * Whether hospital creation mode is active
+ * Whether hospital creation mode is enabled.
  */
 let hospitalCreationEnabled = false;
 
 /**
- * Load map
+ * Load the map.
  */
 function loadMap() {
-    mymap = L.map('mapid').setView([51.505, -0.09], 13);
+    mymap = L.map("mapid").setView([51.505, -0.09], 13);
 
-    let osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    const osm = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 19,
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(mymap);
 
-    let baseMaps = {
+    const baseMaps = {
         "OpenStreetMap": osm
     };
 
-    let overlayMaps = {
+    const overlayMaps = {
         "My Hospitals": defaultHospitalLayer,
         "Reporting Layer": reportingLayer
     };
 
     defaultHospitalLayer.addTo(mymap);
-    reportingLayer.addTo(mymap);
 
     layerControl = L.control.layers(baseMaps, overlayMaps).addTo(mymap);
 
-    mymap.on('click', onMapClick);
+    mymap.on("click", handleMapClick);
 
     getUserLocation();
-
-    // ✅ important fix for resizing
     refreshMapSize();
-	    setTimeout(refreshMapSize, 500);
+    setTimeout(refreshMapSize, 500);
 }
 
 /**
- * Get browser user location
+ * Track browser user location continuously.
+ */
+/**
+ * Track browser user location continuously
  */
 function getUserLocation() {
     if (!navigator.geolocation) {
-        console.log("Geolocation is not supported by this browser.");
         return;
     }
 
-    navigator.geolocation.getCurrentPosition(
+    navigator.geolocation.watchPosition(
         function (position) {
-            currentUserLatLng = [
-                position.coords.latitude,
-                position.coords.longitude
-            ];
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
 
-            console.log("User location loaded:", currentUserLatLng);
+            currentUserLatLng = [lat, lng];
+            const currentLatLngObject = L.latLng(lat, lng);
 
-            L.marker(currentUserLatLng)
-                .bindPopup("You are here")
-                .addTo(mymap);
+            if (currentUserLocationMarker) {
+                currentUserLocationMarker.setLatLng(currentLatLngObject);
+            } else {
+                currentUserLocationMarker = L.marker(currentLatLngObject)
+                    .bindPopup("You are here")
+                    .addTo(mymap);
+            }
+
+            lastFivePositions.push(currentLatLngObject);
+
+            if (lastFivePositions.length > 5) {
+                lastFivePositions.shift();
+            }
+
+            if (
+                window.innerWidth < 768 &&
+                typeof isDefaultLayerActive === "function" &&
+                isDefaultLayerActive()
+            ) {
+                mymap.setView(currentLatLngObject, 16);
+            }
+
+            if (typeof checkProximityAlert === "function") {
+                checkProximityAlert();
+            }
         },
-        function (error) {
-            console.log("Could not get user location:", error);
+        function () {
+            return;
+        },
+        {
+            enableHighAccuracy: true,
+            maximumAge: 0,
+            timeout: 10000
         }
     );
 }
 
 /**
- * Enable hospital creation mode
+ * Enable hospital creation mode.
  */
 function enableHospitalCreation() {
     hospitalCreationEnabled = true;
@@ -106,18 +141,17 @@ function enableHospitalCreation() {
 }
 
 /**
- * Disable hospital creation mode
+ * Disable hospital creation mode.
  */
 function disableHospitalCreation() {
     hospitalCreationEnabled = false;
 }
 
 /**
- * Map click handler
+ * Handle map click events.
+ * @param {Object} e - Leaflet event.
  */
-function onMapClick(e) {
-    console.log("Map clicked at:", e.latlng);
-
+function handleMapClick(e) {
     if (!hospitalCreationEnabled) {
         return;
     }
@@ -140,20 +174,11 @@ function onMapClick(e) {
         userIdInput.value = userId;
     }
 
-    if (typeof showDialog === "function") {
-        showDialog("hospitalFormDialog");
-    }
+    showDialog("hospitalFormDialog");
 }
 
 /**
- * Remove reporting layer contents
- */
-function removeReportingLayer() {
-    reportingLayer.clearLayers();
-}
-
-/**
- * Zoom to user location
+ * Zoom to the current user location.
  */
 function zoomToUserLocation() {
     if (!currentUserLatLng) {
@@ -165,35 +190,26 @@ function zoomToUserLocation() {
 }
 
 /**
- * Reload map data
+ * Reload map data.
  */
 function reloadMapData() {
-    if (typeof loadDefaultHospitalLayer === "function") {
-        loadDefaultHospitalLayer();
+    if (typeof showDefaultHospitalLayer === "function") {
+        showDefaultHospitalLayer();
     }
 }
 
 /**
- * Clear map layers
- */
-function clearMapLayers() {
-    defaultHospitalLayer.clearLayers();
-    reportingLayer.clearLayers();
-}
-
-/**
- * Fix map rendering after layout resize
+ * Refresh map size after layout changes.
  */
 function refreshMapSize() {
-    if (mymap) {
-        setTimeout(function () {
-            mymap.invalidateSize(true);
-            mymap.setView(mymap.getCenter(), mymap.getZoom());
-        }, 300);
+    if (!mymap) {
+        return;
     }
+
+    setTimeout(function () {
+        mymap.invalidateSize(true);
+        mymap.setView(mymap.getCenter(), mymap.getZoom());
+    }, 300);
 }
 
-/**
- * Listen to window resize
- */
 window.addEventListener("resize", refreshMapSize);
