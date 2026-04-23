@@ -1,21 +1,40 @@
 "use strict";
 
-const express = require('express');
+const express = require("express");
 const path = require("path");
-const http = require('http');
+const http = require("http");
 
+/**
+ * Express application instance.
+ */
 const dataAPI = express();
+
+/**
+ * HTTP server wrapping the Express app.
+ */
 const httpServer = http.createServer(dataAPI);
+
+/**
+ * Server port.
+ */
 const port = 4480;
 
+/**
+ * Start the API server.
+ */
 httpServer.listen(port, function () {
     console.log("Data API server listening on port " + port);
 });
 
+/**
+ * Parse JSON and URL-encoded request bodies.
+ */
 dataAPI.use(express.json());
 dataAPI.use(express.urlencoded({ extended: true }));
 
-// CORS
+/**
+ * Enable CORS for browser-based requests.
+ */
 dataAPI.use(function (req, res, next) {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -23,26 +42,36 @@ dataAPI.use(function (req, res, next) {
     next();
 });
 
-// logging
+/**
+ * Log requested file paths.
+ */
 dataAPI.use(function (req, res, next) {
     const filename = path.basename(req.url);
     console.log("The file " + filename + " was requested.");
     next();
 });
 
-// test
-dataAPI.get('/', function (req, res) {
+/**
+ * Simple root test route.
+ */
+dataAPI.get("/", function (req, res) {
     res.send("hello world from the Data API on port: " + port);
 });
 
-// routes
-const geojsonAPI = require('./routes/geojsonAPI');
-const crudAPI = require('./routes/crudAPI');
+/**
+ * Route handlers.
+ */
+const geojsonAPI = require("./routes/geojsonAPI");
+const crudAPI = require("./routes/crudAPI");
 
-// local/jest paths
-dataAPI.use('/api/geojsonAPI', geojsonAPI);
-dataAPI.use('/api/crudAPI', crudAPI);
+/**
+ * API routes for browser app and testing.
+ */
+dataAPI.use("/api/geojsonAPI", geojsonAPI);
+dataAPI.use("/api/crudAPI", crudAPI);
 
-// CEGE server/browser paths
-dataAPI.use('/geojsonAPI', geojsonAPI);
-dataAPI.use('/crudAPI', crudAPI);
+/**
+ * Direct routes retained for compatibility with CEGE server/browser paths.
+ */
+dataAPI.use("/geojsonAPI", geojsonAPI);
+dataAPI.use("/crudAPI", crudAPI);
