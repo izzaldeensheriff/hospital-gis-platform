@@ -44,6 +44,7 @@ let selectedHospitalLatLng = null;
  * Whether hospital creation mode is enabled.
  */
 let hospitalCreationEnabled = false;
+
 /**
  * Tracks whether the screen was previously mobile width.
  */
@@ -55,7 +56,7 @@ let wasMobileWidth = window.innerWidth < 768;
 let hasAutoCenteredOnMobile = false;
 
 /**
- * Load the map.
+ * Load the Leaflet map and its layers.
  */
 function loadMap() {
     mymap = L.map("mapid").setView([51.505, -0.09], 13);
@@ -95,9 +96,6 @@ function loadMap() {
 /**
  * Track browser user location continuously.
  */
-/**
- * Track browser user location continuously.
- */
 function getUserLocation() {
     if (!navigator.geolocation) {
         return;
@@ -125,10 +123,7 @@ function getUserLocation() {
                 lastFivePositions.shift();
             }
 
-            if (
-                window.innerWidth < 768 &&
-                !hasAutoCenteredOnMobile
-            ) {
+            if (window.innerWidth < 768 && !hasAutoCenteredOnMobile) {
                 mymap.setView(currentLatLngObject, 16);
                 hasAutoCenteredOnMobile = true;
             }
@@ -147,6 +142,7 @@ function getUserLocation() {
         }
     );
 }
+
 /**
  * Enable hospital creation mode.
  */
@@ -163,8 +159,8 @@ function disableHospitalCreation() {
 }
 
 /**
- * Handle map click events.
- * @param {Object} e - Leaflet event.
+ * Handle map click events for hospital creation.
+ * @param {Object} e - Leaflet click event.
  */
 function handleMapClick(e) {
     if (!hospitalCreationEnabled) {
@@ -214,7 +210,7 @@ function reloadMapData() {
 }
 
 /**
- * Refresh map size after layout changes.
+ * Refresh map size after layout changes and refit visible data if possible.
  */
 function refreshMapSize() {
     if (!mymap) {
@@ -235,14 +231,15 @@ function refreshMapSize() {
                 return;
             }
         } catch (error) {
-            // fallback below
+            // Fall back to current view if bounds cannot be calculated.
         }
 
         mymap.setView(mymap.getCenter(), mymap.getZoom());
     }, 300);
 }
+
 /**
- * Listen for window resize events.
+ * Refit the map when switching between desktop and mobile widths.
  */
 window.addEventListener("resize", function () {
     const isMobileWidth = window.innerWidth < 768;
@@ -264,7 +261,7 @@ window.addEventListener("resize", function () {
                     return;
                 }
             } catch (error) {
-                // do nothing
+                // Keep current map view if no valid bounds are available.
             }
 
             wasMobileWidth = isMobileWidth;
