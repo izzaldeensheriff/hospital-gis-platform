@@ -31,32 +31,59 @@ let dashboardCleanlinessData = null;
 let selectedHospitalEntity = null;
 
 /**
- * Route prefixes - change only if your API uses different route names.
- */
-const crudRoute = "crudAPI";
-const geoJsonRoute = "geojsonAPI";
-
-/**
  * Base API URL.
  */
 const dashboardApiBase = window.location.origin;
 
 /**
- * Build CRUD URL.
+ * Build a CRUD API URL.
  * @param {string} endpoint - Endpoint path.
- * @returns {string} URL.
+ * @returns {string} Full URL.
  */
 function buildDashboardCrudUrl(endpoint) {
-    return dashboardApiBase + "/api/" + crudRoute + "/" + endpoint;
+    return dashboardApiBase + "/api/crudAPI/" + endpoint;
 }
 
 /**
- * Build GeoJSON URL.
+ * Build candidate GeoJSON URLs.
+ * Tries both geojsonAPI and geoJSONAPI to survive route naming inconsistencies.
  * @param {string} endpoint - Endpoint path.
- * @returns {string} URL.
+ * @returns {string[]} Candidate URLs.
  */
-function buildDashboardGeoJsonUrl(endpoint) {
-    return dashboardApiBase + "/api/" + geoJsonRoute + "/" + endpoint;
+function buildDashboardGeoJsonUrls(endpoint) {
+    return [
+        dashboardApiBase + "/api/geojsonAPI/" + endpoint,
+        dashboardApiBase + "/api/geoJSONAPI/" + endpoint
+    ];
+}
+
+/**
+ * Try multiple URLs until one returns JSON successfully.
+ * @param {string[]} urls - Candidate URLs.
+ * @returns {Promise<any>} Parsed JSON.
+ */
+function fetchFirstWorkingJson(urls) {
+    let index = 0;
+
+    function tryNext() {
+        if (index >= urls.length) {
+            return Promise.reject(new Error("All candidate URLs failed."));
+        }
+
+        const url = urls[index];
+        index += 1;
+
+        return fetch(url).then(function (response) {
+            if (!response.ok) {
+                throw new Error("HTTP " + response.status);
+            }
+            return response.json();
+        }).catch(function () {
+            return tryNext();
+        });
+    }
+
+    return tryNext();
 }
 
 /**
@@ -78,7 +105,7 @@ function loadDashboard() {
  * Initialise Cesium viewer.
  */
 function initialiseCesium() {
-    Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI3OTdjNDZjOS0wNTgwLTQzMTQtYjg5Yi0xMThjZTcyOGJhMTMiLCJpZCI6NDE5ODMzLCJpYXQiOjE3NzY0OTExODd9.Q3wgDRZZ5PkbVaxySp_2r-YRVdaFW6841nN8z-TK8k8";
+    Cesium.Ion.defaultAccessToken = "YOUR_CESIUM_TOKEN_HERE";
 
     dashboardViewer = new Cesium.Viewer("cesiumContainer", {
         timeline: false,
@@ -113,7 +140,7 @@ function initialiseCesium() {
         }
 
         highlightSelectedHospital(pickedObject.id);
-        showHospitalReports(hospitalId, hospitalName);
+        showHospitalReports(hospitalId, hospitalName, pickedObject.id.properties);
         updateCleanlinessKeywordsForHospital(hospitalId, hospitalName);
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 }
@@ -170,16 +197,10 @@ function getDashboardUserId() {
  * Load hospitals for Cesium map.
  */
 function loadDashboardHospitals() {
-    fetch(buildDashboardGeoJsonUrl("hospitalsByUser/" + dashboardUserId))
-        .then(function (response) {
-            if (!response.ok) {
-                throw new Error("Failed to load hospitals.");
-            }
-            return response.json();
-        })
+    fetchFirstWorkingJson(buildDashboardGeoJsonUrls("hospitalsByUser/" + dashboardUserId))
         .then(function (data) {
-            dashboardHospitalsData = data;
-            addHospitalsToCesium(data);
+            dashboardHospitalsData = normaliseFeaturesData(data);
+            addHospitalsToCesium(dashboardHospitalsData);
         })
         .catch(function () {
             document.getElementById("dashboardSubtitle").innerText = "Unable to load hospital data.";
@@ -265,18 +286,16 @@ function getCesiumQueueColour(queueDescription) {
 
 /**
  * Load cleanliness dataset for all hospitals.
- * Uses the dedicated endpoint first, then falls back to hospitalsByUser data.
  */
 function loadDashboardCleanliness() {
-    fetch(buildDashboardGeoJsonUrl("hospitalLatestCleanliness/" + dashboardUserId))
-        .then(function (response) {
-            if (!response.ok) {
-                throw new Error("Failed to load cleanliness data.");
-            }
-            return response.json();
-        })
+    fetchFirstWorkingJson(buildDashboardGeoJsonUrls("hospitalLatestCleanliness/" + dashboardUserId))
         .then(function (data) {
-            dashboardCleanlinessData = normaliseCleanlinessData(data);
+            dashboardCleanlinessData = normaliseFeaturesData(data);
+
+            if (!dashboardCleanlinessData.features.length) {
+                dashboardCleanlinessData = fallbackCleanlinessFromHospitals();
+            }
+
             updateCleanlinessKeywordsForAllHospitals();
         })
         .catch(function () {
@@ -291,12 +310,14 @@ function loadDashboardCleanliness() {
  */
 function fallbackCleanlinessFromHospitals() {
     if (!dashboardHospitalsData || !dashboardHospitalsData.features) {
-        return { features: [] };
+        return { type: "FeatureCollection", features: [] };
     }
 
     return {
+        type: "FeatureCollection",
         features: dashboardHospitalsData.features.map(function (feature) {
             return {
+                type: "Feature",
                 properties: {
                     hospital_id: feature.properties ? feature.properties.hospital_id : null,
                     hospital_name: feature.properties ? feature.properties.hospital_name : "",
@@ -308,80 +329,87 @@ function fallbackCleanlinessFromHospitals() {
 }
 
 /**
- * Normalise cleanliness response into a features-like structure.
- * @param {Object} data - API response.
- * @returns {Object} Normalised object with features array.
+ * Show reports for the selected hospital.
+ * Falls back to latest report values from hospitalsByUser if the dedicated endpoint fails.
+ * @param {number|string} hospitalId - Hospital ID.
+ * @param {string} hospitalName - Hospital name.
+ * @param {Object} clickedProperties - Cesium properties object.
  */
-function normaliseCleanlinessData(data) {
-    if (data && Array.isArray(data.features)) {
-        return data;
-    }
-
-    if (data && Array.isArray(data.array_to_json)) {
-        return {
-            features: data.array_to_json.map(function (item) {
-                return {
-                    properties: item
-                };
-            })
-        };
-    }
-
-    if (Array.isArray(data)) {
-        return {
-            features: data.map(function (item) {
-                return {
-                    properties: item
-                };
-            })
-        };
-    }
-
-    return { features: [] };
+function showHospitalReports(hospitalId, hospitalName, clickedProperties) {
+    fetchFirstWorkingJson(buildDashboardGeoJsonUrls("allReportsForHospital/" + hospitalId))
+        .then(function (data) {
+            renderReportsTable(normaliseReportsData(data), hospitalName);
+        })
+        .catch(function () {
+            const fallbackRow = buildFallbackReportRow(hospitalId, hospitalName, clickedProperties);
+            renderReportsTable(fallbackRow ? [fallbackRow] : [], hospitalName);
+        });
 }
 
 /**
- * Show reports for the selected hospital.
+ * Build a fallback report row from clicked hospital properties or hospitalsByUser data.
  * @param {number|string} hospitalId - Hospital ID.
  * @param {string} hospitalName - Hospital name.
+ * @param {Object} clickedProperties - Cesium properties object.
+ * @returns {Object|null} Report row object.
  */
-function showHospitalReports(hospitalId, hospitalName) {
-    fetch(buildDashboardGeoJsonUrl("allReportsForHospital/" + hospitalId))
-        .then(function (response) {
-            if (!response.ok) {
-                throw new Error("Failed to load reports.");
-            }
-            return response.json();
-        })
-        .then(function (data) {
-            document.getElementById("dashboardSubtitle").innerText = "Selected hospital: " + hospitalName;
-            document.getElementById("selectedHospitalName").innerText = "Showing reports for: " + hospitalName;
+function buildFallbackReportRow(hospitalId, hospitalName, clickedProperties) {
+    if (clickedProperties) {
+        return {
+            queue_length_description: clickedProperties.queue_length_description
+                ? clickedProperties.queue_length_description.getValue()
+                : "Unknown",
+            cleanliness: clickedProperties.cleanliness
+                ? clickedProperties.cleanliness.getValue()
+                : "",
+            user_id: dashboardUserId
+        };
+    }
 
-            const tableBody = document.getElementById("reportsTableBody");
-            tableBody.innerHTML = "";
-
-            const rows = normaliseReportsData(data);
-
-            if (rows.length === 0) {
-                tableBody.innerHTML = "<tr><td colspan='3' class='empty-message'>No reports found for this hospital.</td></tr>";
-                return;
-            }
-
-            rows.forEach(function (props) {
-                const row = document.createElement("tr");
-
-                row.innerHTML =
-                    "<td>" + (props.queue_length_description || "Unknown") + "</td>" +
-                    "<td>" + (props.cleanliness || "") + "</td>" +
-                    "<td>" + (props.user_id || "") + "</td>";
-
-                tableBody.appendChild(row);
-            });
-        })
-        .catch(function () {
-            document.getElementById("reportsTableBody").innerHTML =
-                "<tr><td colspan='3' class='empty-message'>Unable to load reports.</td></tr>";
+    if (dashboardHospitalsData && dashboardHospitalsData.features) {
+        const matchedFeature = dashboardHospitalsData.features.find(function (feature) {
+            return String(feature.properties ? feature.properties.hospital_id : "") === String(hospitalId);
         });
+
+        if (matchedFeature && matchedFeature.properties) {
+            return {
+                queue_length_description: matchedFeature.properties.queue_length_description || "Unknown",
+                cleanliness: matchedFeature.properties.cleanliness || "",
+                user_id: dashboardUserId
+            };
+        }
+    }
+
+    return null;
+}
+
+/**
+ * Render reports table.
+ * @param {Array} rows - Array of report property objects.
+ * @param {string} hospitalName - Hospital name.
+ */
+function renderReportsTable(rows, hospitalName) {
+    document.getElementById("dashboardSubtitle").innerText = "Selected hospital: " + hospitalName;
+    document.getElementById("selectedHospitalName").innerText = "Showing reports for: " + hospitalName;
+
+    const tableBody = document.getElementById("reportsTableBody");
+    tableBody.innerHTML = "";
+
+    if (!rows || rows.length === 0) {
+        tableBody.innerHTML = "<tr><td colspan='3' class='empty-message'>No reports found for this hospital.</td></tr>";
+        return;
+    }
+
+    rows.forEach(function (props) {
+        const row = document.createElement("tr");
+
+        row.innerHTML =
+            "<td>" + (props.queue_length_description || "Unknown") + "</td>" +
+            "<td>" + (props.cleanliness || "") + "</td>" +
+            "<td>" + (props.user_id || "") + "</td>";
+
+        tableBody.appendChild(row);
+    });
 }
 
 /**
@@ -405,6 +433,46 @@ function normaliseReportsData(data) {
     }
 
     return [];
+}
+
+/**
+ * Normalise API response into a FeatureCollection-like object.
+ * @param {Object|Array} data - API response.
+ * @returns {Object} Normalised FeatureCollection.
+ */
+function normaliseFeaturesData(data) {
+    if (data && Array.isArray(data.features)) {
+        return data;
+    }
+
+    if (data && Array.isArray(data.array_to_json)) {
+        return {
+            type: "FeatureCollection",
+            features: data.array_to_json.map(function (item) {
+                return {
+                    type: "Feature",
+                    properties: item
+                };
+            })
+        };
+    }
+
+    if (Array.isArray(data)) {
+        return {
+            type: "FeatureCollection",
+            features: data.map(function (item) {
+                return {
+                    type: "Feature",
+                    properties: item
+                };
+            })
+        };
+    }
+
+    return {
+        type: "FeatureCollection",
+        features: []
+    };
 }
 
 /**
