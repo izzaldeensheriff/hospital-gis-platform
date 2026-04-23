@@ -21,7 +21,7 @@ let popupHospitalLookup = {};
 let hospitalQueueChart = null;
 
 /**
- * Stores current user's hospital GeoJSON features.
+ * Stores the current user's hospital GeoJSON features.
  */
 let userHospitalFeatures = [];
 
@@ -32,7 +32,7 @@ let lastProximityHospitalId = null;
 
 /**
  * Current map mode.
- * Values: "default" or "reporting"
+ * Values: "default" or "reporting".
  */
 let currentMapMode = "default";
 
@@ -210,7 +210,7 @@ function showOnlyReportingLayer() {
 
 /**
  * Check whether the default hospital layer is currently active.
- * @returns {boolean} True if default layer is active on small screen.
+ * @returns {boolean} True if the default layer is active on a small screen.
  */
 function isDefaultLayerActive() {
     return window.innerWidth < 768 && currentMapMode === "default";
@@ -603,7 +603,7 @@ function getUserHospitals() {
 
             try {
                 mymap.fitBounds(geoJsonLayer.getBounds(), { padding: [20, 20] });
-            } catch (e) {
+            } catch (error) {
                 return;
             }
         })
@@ -717,7 +717,7 @@ function getClosestHospitals() {
 
             try {
                 mymap.fitBounds(geoJsonLayer.getBounds(), { padding: [20, 20] });
-            } catch (e) {
+            } catch (error) {
                 return;
             }
         })
@@ -784,7 +784,7 @@ function getUnknownQueueHospitals() {
 
             try {
                 mymap.fitBounds(geoJsonLayer.getBounds(), { padding: [20, 20] });
-            } catch (e) {
+            } catch (error) {
                 return;
             }
         })
@@ -883,8 +883,6 @@ function getHospitalQueueBarChartData() {
         });
 }
 
-
-
 /**
  * Close the hospital queue chart.
  */
@@ -905,6 +903,3 @@ function closeHospitalChart() {
         setTimeout(refreshMapSize, 700);
     }
 }
-
-
-
