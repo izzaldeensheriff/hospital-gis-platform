@@ -105,7 +105,7 @@ function loadDashboard() {
  * Initialise Cesium viewer.
  */
 function initialiseCesium() {
-    Cesium.Ion.defaultAccessToken = "YOUR_CESIUM_TOKEN_HERE";
+    Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI3OTdjNDZjOS0wNTgwLTQzMTQtYjg5Yi0xMThjZTcyOGJhMTMiLCJpZCI6NDE5ODMzLCJpYXQiOjE3NzY0OTExODd9.Q3wgDRZZ5PkbVaxySp_2r-YRVdaFW6841nN8z-TK8k8";
 
     dashboardViewer = new Cesium.Viewer("cesiumContainer", {
         timeline: false,
