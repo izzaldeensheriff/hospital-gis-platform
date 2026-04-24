@@ -821,6 +821,10 @@ function removeUnknownQueueHospitals() {
 /**
  * Get bar chart data and render the chart.
  */
+ /**
+ * Requests queue length data from API and triggers chart rendering.
+ * Used to visualise hospital distribution by queue category.
+ */
 function getHospitalQueueBarChartData() {
     fetch(buildGeoJsonUrl("hospitalsByQueueLength"))
         .then(function (response) {
