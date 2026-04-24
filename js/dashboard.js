@@ -137,7 +137,11 @@ function initialiseCesium() {
         infoBox: false,
         selectionIndicator: true
     });
-
+/**
+ * Handles hospital selection on the Cesium map.
+ * Updates the reports table and cleanliness keyword panel
+ * based on the selected hospital.
+ */
     dashboardViewer.screenSpaceEventHandler.setInputAction(function (movement) {
         const pickedObject = dashboardViewer.scene.pick(movement.position);
 
