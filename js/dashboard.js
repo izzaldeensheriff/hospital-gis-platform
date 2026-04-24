@@ -1,4 +1,16 @@
 /**
+ * AI Assistance Acknowledgement:
+ * This file was developed with the assistance of ChatGPT (OpenAI, GPT-5.3).
+ * ChatGPT was used to support debugging, code structuring, and optimisation.
+ * All outputs were reviewed, tested, and adapted by the author.
+ * 
+ * Tool: ChatGPT
+ * Version: GPT-5.3
+ * Provider: OpenAI
+ * URL: https://chat.openai.com/
+ */
+
+/**
  * Dashboard Logic (Cesium 3D View)
  * Handles hospital visualisation, report interaction,
  * and cleanliness keyword analysis in the dashboard.
