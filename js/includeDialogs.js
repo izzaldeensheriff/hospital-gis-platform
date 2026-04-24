@@ -9,6 +9,12 @@
  * Provider: OpenAI
  * URL: https://chat.openai.com/
  */
+ 
+ /**
+ * Dialog Include Utility
+ * Dynamically loads HTML dialog components into the main page,
+ * enabling modular form management.
+ */
 
 "use strict";
 
