@@ -550,7 +550,9 @@ function getQueueColour(queueDescription) {
 }
 
 /**
- * Get hospitals created by the current user.
+ * Retrieves hospitals for the current user from the API,
+ * renders them on the map, and binds popup interactions.
+ * Also updates internal lookup structures for reporting.
  */
 function getUserHospitals() {
     if (!userId) {
