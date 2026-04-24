@@ -507,9 +507,9 @@ function saveQueueCleanlinessReport(formValues) {
 }
 
 /**
- * Get marker colour based on queue length description.
- * @param {string} queueDescription - Queue description text.
- * @returns {string} Marker colour.
+ * Maps queue length descriptions to visual colours
+ * for intuitive representation on the map.
+ * Used to distinguish hospital queue severity.
  */
 function getQueueColour(queueDescription) {
     if (!queueDescription) {
