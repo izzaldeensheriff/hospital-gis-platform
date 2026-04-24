@@ -411,7 +411,7 @@ function saveNewHospital(formValues) {
             selectedHospitalLatLng = null;
             disableHospitalCreation();
 
-            alert("Hospital saved successfully.");
+            alert("Hospital saved successfully and added to your map.");
             getUserHospitals();
         })
         .catch(function (error) {
