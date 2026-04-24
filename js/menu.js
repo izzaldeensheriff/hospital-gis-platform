@@ -9,6 +9,12 @@
  * Provider: OpenAI
  * URL: https://chat.openai.com/
  */
+ 
+ /**
+ * Menu Interaction Logic
+ * Handles user menu actions and routes them to corresponding
+ * map, reporting, and analysis functions.
+ */
 
 "use strict";
 
