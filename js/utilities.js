@@ -233,9 +233,11 @@ function isDefaultLayerActive() {
     return window.innerWidth < 768 && currentMapMode === "default";
 }
 
-/**
- * Check whether the user is within 25m of one of their hospitals
- * for the last five recorded positions, then open the report form.
+
+ /**
+ * Checks if the user is within ~25 metres of a hospital
+ * using the last five recorded positions.
+ * Triggers the reporting form automatically when conditions are met.
  */
 function checkProximityAlert() {
     if (!isDefaultLayerActive()) {
