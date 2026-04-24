@@ -8,6 +8,8 @@
   },
   "scripts": {
     "start": "vite",
-    "build": "vite build"
+    "build": "vite build",
+    "test": "echo \"No automated tests configured\" && exit 0",
+    "coverage": "echo \"No coverage tests configured\" && exit 0"
   }
 }

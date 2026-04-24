@@ -1,100 +1,161 @@
-"use strict"
-
-function menu2(){
-	alert("menu 2");
-}
-function menu3(){
-	alert ("menu 3");
-}
-function menu5(){
-	alert ("menu 5");
-}
-function menu6(){
-	alert ("menu 6");
-}
-function menu8(){
-	alert ("menu 8");
-}
-function menu9(){
-	alert ("menu 9");
-}
-
-/** function showDialog
+/**
+ * AI Assistance Acknowledgement:
+ * This file was developed with the assistance of ChatGPT (OpenAI, GPT-5.3).
+ * ChatGPT was used to support debugging, code structuring, and optimisation.
+ * All outputs were reviewed, tested, and adapted by the author.
  * 
- * function to open any dialog box based on its name
+ * Tool: ChatGPT
+ * Version: GPT-5.3
+ * Provider: OpenAI
+ * URL: https://chat.openai.com/
  */
-function showDialog(dialogName) {
-	let layerDialog = document.getElementById(dialogName);
-	layerDialog.showModal();
-
-}
-
-
-
-/** 
- * function showLayerToLoad
- * 
- * function to open the dialog box
- */
-function showLayerToLoad(e) {
-	let layerDialog = document.getElementById("layerToLoad");
-	layerDialog.showModal();
-
-}
-
-
-/** 
- * function showLayerList
- * 
- * function to open the dialog box
- */
-function showLayerList(e) {
-	let layerDialog = document.getElementById("allLayers");
-	layerDialog.showModal();
-
-}
-
-
-/** 
- * function closeDialog
- * 
- * close the open dialog boxes
+ 
+ /**
+ * Menu Interaction Logic
+ * Handles user menu actions and routes them to corresponding
+ * map, reporting, and analysis functions.
  */
 
-function closeDialog(dialog){
-	// close  open dialog boxe
-	console.log(dialog.id);
-	dialog.close();
-}
+"use strict";
 
-
-/** 
- * function saveDialog
- * 
- * save the open dialog boxes
- * for now just read the content of any input boxes in the dialog
- * and alert as a name/value string
- * 
+/**
+ * Open a dialog by element ID.
+ * @param {string} dialogId - The dialog element ID.
  */
-
-function saveDialog(dialog){
-	console.log(dialog.id);
-
-	// read content then close any open dialog boxes for now - can adapt this code later on to actually save data
-	let descendents = dialog.getElementsByTagName('*');
-	console.log(descendents.length)
-	let kvpairs = [];
-	for ( let i = 0; i < descendents.length; i++ ) {
-	   let e = descendents[i];
-	   // ignore any elements if they don't have both an ID and a value
-	   if (e.id && e.value) {
-	   		kvpairs.push(encodeURIComponent(e.id) + "=" + encodeURIComponent(e.value));
-	   }
-	}
-	let queryString = kvpairs.join("&");
-	alert(queryString);
-	dialog.close();
+function showDialog(dialogId) {
+    const dialog = document.getElementById(dialogId);
+    if (!dialog) {
+        return;
+    }
+    dialog.showModal();
 }
 
+/**
+ * Close a dialog element.
+ * @param {HTMLDialogElement} dialog - The dialog element.
+ */
+function closeDialog(dialog) {
+    if (!dialog) {
+        return;
+    }
+    dialog.close();
+}
 
+/**
+ * Collect values from a dialog form.
+ * @param {HTMLDialogElement} dialog - Dialog containing form fields.
+ * @returns {Object} Form values.
+ */
+function getDialogFormValues(dialog) {
+    const formValues = {};
+    const elements = dialog.querySelectorAll("input, select, textarea");
 
+    elements.forEach(function (element) {
+        if (!element.id && !element.name) {
+            return;
+        }
+
+        if (element.type === "radio") {
+            if (element.checked) {
+                formValues[element.name || element.id] = element.value;
+            }
+        } else if (element.type === "checkbox") {
+            formValues[element.id] = element.checked;
+        } else {
+            formValues[element.id] = element.value;
+        }
+    });
+
+    return formValues;
+}
+
+/**
+ * Save a dialog by routing the data to the correct handler.
+ * @param {HTMLDialogElement} dialog - The dialog being saved.
+ */
+function saveDialog(dialog) {
+    if (!dialog) {
+        return;
+    }
+
+    const formValues = getDialogFormValues(dialog);
+
+    if (dialog.id === "hospitalFormDialog") {
+        if (typeof saveNewHospital === "function") {
+            saveNewHospital(formValues);
+        }
+        return;
+    }
+
+    if (dialog.id === "queueCleanlinessFormDialog") {
+        if (typeof saveQueueCleanlinessReport === "function") {
+            saveQueueCleanlinessReport(formValues);
+        }
+        return;
+    }
+
+    dialog.close();
+}
+
+/**
+ * Show the default hospital layer.
+ */
+function showDefaultHospitalLayer() {
+    if (typeof showOnlyDefaultLayer === "function") {
+        showOnlyDefaultLayer();
+    }
+}
+
+/**
+ * Show the user ranking.
+ */
+function showUserRanking() {
+    if (typeof getUserRanking === "function") {
+        getUserRanking();
+    }
+}
+
+/**
+ * Show the closest hospitals layer.
+ */
+function showClosestHospitalsLayer() {
+    if (typeof getClosestHospitals === "function") {
+        getClosestHospitals();
+    }
+}
+
+/**
+ * Remove the closest hospitals layer.
+ */
+function removeClosestHospitalsLayer() {
+    if (typeof removeClosestHospitals === "function") {
+        removeClosestHospitals();
+    }
+}
+
+/**
+ * Show the unknown queue layer.
+ */
+function showUnknownQueueLayer() {
+    if (typeof getUnknownQueueHospitals === "function") {
+        getUnknownQueueHospitals();
+    }
+}
+
+/**
+ * Remove the unknown queue layer.
+ */
+function removeUnknownQueueLayer() {
+    if (typeof removeUnknownQueueHospitals === "function") {
+        removeUnknownQueueHospitals();
+    }
+}
+
+/**
+ * Show the hospital queue bar chart.
+ */
+function showHospitalQueueBarChart() {
+    if (typeof getHospitalQueueBarChartData === "function") {
+        getHospitalQueueBarChartData();
+    }
+}
