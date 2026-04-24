@@ -9,10 +9,17 @@
  * Provider: OpenAI
  * URL: https://chat.openai.com/
  */
+ 
+ /**
+ * Core Map Logic
+ * Handles map initialisation, user location tracking,
+ * layer management, and responsive behaviour.
+ */
+/**
+ 
 
 "use strict";
 
-/**
  * Leaflet map instance.
  */
 let mymap;
