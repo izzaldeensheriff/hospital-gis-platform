@@ -181,6 +181,10 @@ function disableHospitalCreation() {
  * Handle map click events for hospital creation.
  * @param {Object} e - Leaflet click event.
  */
+ /**
+ * Handles user interaction when clicking on the map.
+ * Used for selecting hospital location in creation mode.
+ */
 function handleMapClick(e) {
     if (!hospitalCreationEnabled) {
         return;
