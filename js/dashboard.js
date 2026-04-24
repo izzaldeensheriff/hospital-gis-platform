@@ -533,9 +533,9 @@ function updateCleanlinessKeywordsForHospital(hospitalId, hospitalName) {
 }
 
 /**
- * Extract keyword frequencies from cleanliness text.
- * @param {Array} features - GeoJSON features.
- * @returns {Object} Keyword counts.
+ * Extracts keyword frequencies from cleanliness text.
+ * Removes common stop words and counts occurrences
+ * to generate keyword bubbles for visual analysis.
  */
 function extractKeywordCountsFromFeatures(features) {
     const stopWords = [
