@@ -264,6 +264,10 @@ function refreshMapSize() {
 /**
  * Refit the map when switching between desktop and mobile widths.
  */
+ /**
+ * Handles dynamic resizing between mobile and desktop views.
+ * Ensures map re-fits to visible layers when screen size changes.
+ */
 window.addEventListener("resize", function () {
     const isMobileWidth = window.innerWidth < 768;
 
