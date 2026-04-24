@@ -1,3 +1,9 @@
+/**
+ * Dashboard Logic (Cesium 3D View)
+ * Handles hospital visualisation, report interaction,
+ * and cleanliness keyword analysis in the dashboard.
+ */
+
 "use strict";
 
 /**
