@@ -10,6 +10,11 @@
  * URL: https://chat.openai.com/
  */
 
+/**
+ * Utilities and UI Handlers
+ * Manages dialog interactions, layer switching,
+ * and user-triggered actions from the menu.
+ */
 "use strict";
 
 /**
