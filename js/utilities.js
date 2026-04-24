@@ -205,7 +205,9 @@ function showOnlyDefaultLayer() {
 }
 
 /**
- * Switch to reporting layer mode only.
+ * Switches the map into reporting mode.
+ * Hides default hospital layer and displays analysis layers
+ * such as closest hospitals and unknown queue results.
  */
 function showOnlyReportingLayer() {
     currentMapMode = "reporting";
